@@ -87,7 +87,7 @@ By participating, you can help improve the project and make it even better :rais
         ```
     * To run the tests with coverage:
         ```bash
-        pytest --cov=rcb tests/
+        pytest --cov=rbc tests/
         ```
 
 7. **Commit Changes**: Commit your changes with a clear and concise commit message that describes what you have changed.
