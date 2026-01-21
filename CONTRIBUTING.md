@@ -77,6 +77,8 @@ By participating, you can help improve the project and make it even better :rais
          """
      ```
 
+   You can find further examples of the Google Docstring Standard [here](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html).
+
 6. **Test Changes**: Test all existing and added functionality.
     * ``rcb`` uses ``pytest`` for running the test suite. If you followed all of the above steps correctly, you already have the project and all dependencies installed. All of our tests are located in the ``tests/`` directory. Please also add your tests into the ``tests/`` directory.
     * To run all tests execute:
