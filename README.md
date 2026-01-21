@@ -4,10 +4,11 @@
 
 # RenewBench Crawlers and Data Processing
 
-[![](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![](https://img.shields.io/badge/Contact-artist%40lists.kit.edu-orange?label=Contact)](renewbench@lists.kit.edu)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/RenewBench-Association/RenewBench-Crawler/main.svg)](https://results.pre-commit.ci/latest/github/RenewBench-Association/RenewBench-Crawler/main)
+[![](https://img.shields.io/badge/Contact-renewbench%40lists.kit.edu-orange)](renewbench@lists.kit.edu)
 
 ## What is the RenewBench Crawler Repository?
 
@@ -16,7 +17,7 @@ dataset. This code is available in the RenewBench Crawlers `rcb` python package,
 configuration files and scripts to run the downloads.
 
 ## Installation
-We heavily recommend installing the `rcb`package in a dedicated `Python3.10+` virtual environment. You can
+We heavily recommend installing the `rcb`package in a dedicated `Python3.11+` virtual environment. You can
 install ``rcp`` directly from the GitHub repository via:
 ```bash
 pip install git+https://github.com/RenewBench-Association/RenewBench-Crawler
