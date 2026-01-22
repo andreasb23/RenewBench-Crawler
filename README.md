@@ -73,6 +73,12 @@ include your `<source>`.
     [Example: _entsoe_download.py_ file](scripts/entsoe_download.py)
 
     Create a `<source>_download.py` to run the downloader `<source>.py`.
+5. **Tests** ([tests/](tests)): -----
+    [Example: _source_configs_ function](tests/conftest.py#L16)
+
+    In the`conftest.py`, update the dict returned by the `source_configs`
+    function to include a dict version of your `<source>.yaml` with
+    placeholders.
 
 ## How to contribute
 Check out our [contribution guidelines](CONTRIBUTING.md) if you are interested in contributing to the RenewBench project :fire:.

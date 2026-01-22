@@ -9,16 +9,18 @@ import yaml
 
 from rbc.config.schema import SCHEMA_REGISTRY
 
-BASE_DIR: Path = Path(__file__).resolve().parents[2]
-CONFIGS_DIR: Path = Path(BASE_DIR, "configs")
+ROOT_DIR: Path = Path(__file__).resolve().parents[2]
+CONFIGS_DIR: Path = Path(ROOT_DIR, "configs")
 
 
-def load_config(source: str) -> BaseModel:
+def load_config(source: str, configs_dir: Path | None = None) -> BaseModel:
     """
     Load YAML config for a specific source.
 
     Args:
         source (str): Name of the data source, i.e. "entsoe".
+        configs_dir (Path | None, optional): Path to the config directory.
+            Defaults to rbc.config.loader.CONFIGS_DIR.
 
     Returns:
         BaseModel: Config data as a Pydantic object.
@@ -26,7 +28,8 @@ def load_config(source: str) -> BaseModel:
     Raises:
         ValueError: If no config YAML file exists for the given source.
     """
-    cfg_path = Path(CONFIGS_DIR, source + ".yaml")
+    configs_dir = configs_dir or CONFIGS_DIR
+    cfg_path = Path(configs_dir, source + ".yaml")
     if not cfg_path.is_file():
         raise ValueError(f"Config file for {source} not found: {cfg_path}")
 
