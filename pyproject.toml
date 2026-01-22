@@ -26,6 +26,8 @@ dependencies = [
     "geopandas",
     "nemosis",
     "pandas",
+    "pydantic",
+    "pyyaml",
     "requests",
     "shapely",
     "tqdm",
