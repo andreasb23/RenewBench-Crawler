@@ -24,6 +24,7 @@ dependencies = [
     "entsoe-apy",
     "eptr2",
     "geopandas",
+    "loguru",
     "nemosis",
     "pandas",
     "pydantic",
