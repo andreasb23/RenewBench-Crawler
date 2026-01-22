@@ -1,0 +1,51 @@
+name: Python test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        python-version: ["3.11", "3.12"]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@main
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest pytest-cov .
+
+      - name: Test with pytest and coverage badge
+        run: |
+          pytest --cov=rcb
+#          coverage report -m --format markdown > cov_report.txt
+#          coverage xml
+
+#      - name: Post coverage report to PR
+#        if: matrix.python-version == '3.11'
+#        uses: marocchino/sticky-pull-request-comment@v2
+#        with:
+#          path: cov_report.txt
+
+#      - name: Upload coverage reports to Codecov
+#        uses: codecov/codecov-action@v5
+#        with:
+#          token: ${{ secrets.CODECOV_TOKEN }}
