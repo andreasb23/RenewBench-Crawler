@@ -42,42 +42,52 @@ By participating, you can help improve the project and make it even better :rais
      A small example of this format is below, but please refer to the official guidelines above for detailed information:
 
      ```python
-     """
-     Short Description.
-
-     Long Description (if needed).
-
-     Args:
-        param1 (type): Description of param1.
-        param2 (type): Description of param2.
-
-     Returns:
-        type: Description of return value.
-
-     Raises:
-        ExceptionType: Description of when and why this exception might be raised.
-
-     Example:
-        You can include examples in this section if required.
-     """
+     def defined_function(param1: type, param2: type = default) -> type:
+        """
+        Short Description.
+   
+        Long Description (if needed).
+   
+        Args:
+           param1 (type): Description of param1.
+           param2 (type, optional): Description of param2. Defaults to default.
+   
+        Returns:
+           type: Description of return value.
+   
+        Raises:
+           ExceptionType: Description of when and why this exception might be raised.
+   
+        Example:
+           You can include examples in this section if required.
+        """
      ```
-
-   When defining classes, make sure to include the attributes as shown below:
-
-     ```python
-     class DefinedClass:
-         """
-         Summary of class here.
-
-         Detailed class description (if needed).
-
-         Attributes:
-             attribute1 (type): Description of attribute 1.
-             attribute2 (type): Description of attribute 2.
-         """
-     ```
-
-   You can find further examples of the Google Docstring Standard [here](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html).
+   
+      When defining classes, make sure to include the attributes as shown below:
+   
+        ```python
+        class DefinedClass:
+            """
+            Summary of class here.
+   
+            Detailed class description (if needed).
+   
+            Attributes:
+                attribute1 (type): Description of attribute 1.
+                attribute2 (type): Description of attribute 2.
+            """
+        
+            def __init__(self, attribute1: type):
+                """Initializes the instance based on ...
+      
+                Args:
+                  attribute1 (type): Description of attribute 1.
+                """
+                self.attribute1 = attribute1
+                self.attribute2 = ...
+        ```
+   
+      You can find further examples of the Google Docstring Standard [here](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html).
 
 6. **Test Changes**: Test all existing and added functionality.
     * ``rcb`` uses ``pytest`` for running the test suite. If you followed all of the above steps correctly, you already have the project and all dependencies installed. All of our tests are located in the ``tests/`` directory. Please also add your tests into the ``tests/`` directory.
