@@ -41,6 +41,39 @@ The RenewBench-Crawlers repository is structured as shown below:
 ## Documentation
 Coming soon :fire:
 
+## Guides
+
+### Including a new data source
+
+To create a data crawler for a new data source, you'll need to amend and
+create several files. Here is an overview of the necessary changes to
+include your `<source>`.
+ You can always look at other crawlers such as `entsoe` for reference.
+
+1. **Config** ([configs/](configs)): -----
+    [Example: _entsoe.yaml_ file](configs/entsoe.yaml)
+
+    Create a `<source>.yaml`. At minimum, it will
+    require a destination directory (`paths/dst_dir_raw`) as well as any access
+    information one might need to crawl the data (`access/...`), i.e. API
+    tokens or account log-in data.
+2. **Config loader** ([rbc/config/schema.py](rbc/config/schema.py)): -----
+   [Example: _EntsoeConfig_ class](rbc/config/schema.py#L75)
+
+    Amend the `schema.py` to
+    - include a `class <Source>Config` with the attributes required by the
+      `.yaml`.
+    - add your class to the `SCHEMA_REGISTRY` at the bottom of the file.
+3. **Downloader** ([rbc/downloaders/](rbc/downloaders)): -----
+    [Example: _entsoe.py_ file](rbc/downloaders/entsoe.py)
+
+    Create a `<source>.py` file containing a `class <Source>Downloader` to
+    coordinate data crawling.
+4. **Script** ([scripts/](scripts)): -----
+    [Example: _entsoe_download.py_ file](scripts/entsoe_download.py)
+
+    Create a `<source>_download.py` to run the downloader `<source>.py`.
+
 ## How to contribute
 Check out our [contribution guidelines](CONTRIBUTING.md) if you are interested in contributing to the RenewBench project :fire:.
 Please also carefully check our [code of conduct](CODE_OF_CONDUCT.md) :blue_heart:.
