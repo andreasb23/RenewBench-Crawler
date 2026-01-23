@@ -1,5 +1,7 @@
 # tests/conftest.py
 from pathlib import Path
+from types import SimpleNamespace
+
 import pytest
 import yaml
 
@@ -40,3 +42,18 @@ def tmp_configs_dir(tmp_path: Path, source_configs: dict) -> Path:
         cfg_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
 
     return cfg_dir
+
+
+def dict_to_namespace(obj: dict | str) -> SimpleNamespace | str:
+    """
+    Recursively convert a dict / nested dicts into SimpleNamespace.
+
+    Args:
+        obj (dict | str): A dict or string to turn into a SimpleNamespace.
+
+    Returns:
+        SimpleNamespace: A SimpleNamespace object.
+    """
+    if isinstance(obj, dict):
+        return SimpleNamespace(**{k: dict_to_namespace(v) for k, v in obj.items()})
+    return obj
