@@ -41,6 +41,19 @@ The RenewBench-Crawlers repository is structured as shown below:
 ## Documentation
 Coming soon :fire:
 
+### Data sources
+
+| Region      | Source   | Platform                                                                            | Docs                                                                                                                 |
+|-------------|----------|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| Europe      | Entso-e  | [TP](https://transparency.entsoe.eu/)                                               | [API guide](https://transparencyplatform.zendesk.com/hc/en-us/sections/12783116987028-Restful-API-integration-guide) |
+| Turkey      | EPIAS    | [TP](https://seffaflik.epias.com.tr/home)                                           | [Docs](https://seffaflik.epias.com.tr/electricity-service/technical/en/index.html)                                   |
+| USA         | EIA      | [API browser](www.eia.gov/opendata/browser/)                                        | [API docs](https://www.eia.gov/opendata/documentation.php)                                                           |
+| Canada      | IESO     |                                                                                     |                                                                                                                      |
+| Chile       | CEN      |                                                                                     |                                                                                                                      |
+| Australia   | AEMO     |                                                                                     |                                                                                                                      |
+| New Zealand | EAT      |                                                                                     |                                                                                                                      |
+| Taiwan      | Taipower | [Realtime data](https://www.taipower.com.tw/d006/loadGraph/loadGraph/genshx_e.html) | -                                                                                                                    |
+
 ## Guides
 
 ### Including a new data source
