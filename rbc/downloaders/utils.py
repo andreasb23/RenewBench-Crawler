@@ -19,7 +19,7 @@ def write_df_to_csv(df: pd.DataFrame, file_path: Path, index: bool = False) -> N
         index (bool, optional): Whether to include the df index in the
             csv (True) or not (False). Defaults to False.
     """
-    if not file_path.suffix != ".csv":
+    if file_path.suffix != ".csv":
         file_path.with_suffix(".csv")
 
     file_path.parent.mkdir(parents=True, exist_ok=True)
