@@ -62,10 +62,11 @@ class EntsoeDownloader:
     Entsoe-E data downloader.
 
     Attributes:
-        output_path (Path): Path to the output directory.
-        ckpt_path (Path): Path to the checkpoint file for resuming downloading.
         years (list[str]): List of years to get data for.
         bidding_zones (list[str]): List of bidding zones to get data for.
+        output_path (Path): Path to the output directory.
+        checkpoint_path (Path): Path to the checkpoint file for resuming.
+        checkpoint (np.array): Array of 0 and 1 values for resuming.
     """
 
     def __init__(
@@ -90,10 +91,14 @@ class EntsoeDownloader:
         Raises:
             ValueError: If token is invalid.
         """
-        self.output_path = output_path
-        self.ckpt_path = Path(self.output_path, "status.pickle")
         self.years = years
         self.bidding_zones = list(bidding_zones)
+        self.output_path = output_path
+        self.checkpoint_path = Path(self.output_path, "status.pickle")
+
+        for bz in self.bidding_zones:
+            if bz not in list(mappings.keys()):
+                raise ValueError(f"Bidding zone '{bz}' is not supported.")
 
         logger.info(
             f"Entsoe-E Downloader initialised for:"
@@ -107,13 +112,11 @@ class EntsoeDownloader:
                 f"Entsoe-apy failed to successfully configure token '{token}'!"
             )
 
-        if resume and self.ckpt_path.is_file():
-            with open(self.ckpt_path, "rb") as f:
+        if resume and self.checkpoint_path.is_file():
+            with open(self.checkpoint_path, "rb") as f:
                 self.checkpoint = pickle.load(f)
         else:
             self.checkpoint = np.zeros((len(years), len(bidding_zones)))
-
-        self.dump_all_to_csv()
 
     def dump_all_to_csv(self):
         """Parse all data from ENTSO-E Platform and save to CSV."""
@@ -123,7 +126,7 @@ class EntsoeDownloader:
             for ibz, zone in enumerate(self.bidding_zones):
                 if self.checkpoint[idx, ibz] == 0:
                     self.checkpoint[idx, ibz] = self.dump_to_csv(zone=zone, year=year)
-                    with open(self.ckpt_path, "wb") as f:
+                    with open(self.checkpoint_path, "wb") as f:
                         pickle.dump(self.checkpoint, f)
                 else:
                     logger.info(f"{zone} in {year}: Data previously downloaded.")
