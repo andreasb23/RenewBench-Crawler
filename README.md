@@ -86,12 +86,22 @@ include your `<source>`.
     [Example: _entsoe_download.py_ file](scripts/entsoe_download.py)
 
     Create a `<source>_download.py` to run the downloader `<source>.py`.
-5. **Tests** ([tests/](tests)): -----
-    [Example: _source_configs_ function](tests/conftest.py#L16)
+5. **Tests** ([tests/](tests)):
 
-    In the`conftest.py`, update the dict returned by the `source_configs`
-    function to include a dict version of your `<source>.yaml` with
-    placeholders.
+    Add in tests for your data crawler:
+    1. In the `tests/conftest.py`, update the dict returned by the `source_configs`
+       function to include a dict version of your `<source>.yaml` with
+       placeholders,
+
+       --- [Example: _source_configs_ function](tests/conftest.py#L16)
+    2. In the `tests/downloaders/` folder, create a `test_<source>.py` with tests for
+       your `class <Source>Config`,
+
+       --- [Example: _test_entsoe.py_ file](tests/downloaders/test_entsoe.py)
+    3. In the `tests/scripts/` folder, create a `test_entsoe_download.py` with tests
+       for your `scripts/<source>.py`.
+
+       --- [Example: _test_entsoe_download.py_ file](tests/scripts/test_entsoe_download.py)
 
 ## How to contribute
 Check out our [contribution guidelines](CONTRIBUTING.md) if you are interested in contributing to the RenewBench project :fire:.
