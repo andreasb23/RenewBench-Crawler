@@ -73,7 +73,7 @@ class EntsoeDownloader:
         self,
         token: str,
         output_path: Path,
-        years: list[str],
+        years: list[int],
         bidding_zones: list[str] = mappings.keys(),
         resume: bool = False,
     ):
@@ -83,7 +83,7 @@ class EntsoeDownloader:
         Attributes:
             token (str): The personal ENTSO-E RESTful API token.
             output_path (Path): Path to the output directory.
-            years (list[str]): List of years to get data for.
+            years (list[int]): List of years to get data for.
             bidding_zones (list[str]): List of bidding zones to get data for.
             resume (bool, optional): Whether to resume from a previous
              download (True) or start from scratch (False). Defaults to False.
@@ -131,13 +131,13 @@ class EntsoeDownloader:
                 else:
                     logger.info(f"{zone} in {year}: Data previously downloaded.")
 
-    def dump_to_csv(self, zone: str, year: str) -> int:
+    def dump_to_csv(self, zone: str, year: int) -> int:
         """
         Parse data for specific zone and year from ENTSO-E and dump to CSV.
 
         Args:
             zone (str): Zone to download data for.
-            year (str): Year to download data for.
+            year (int): Year to download data for.
 
         Returns:
             int: Status of the download (1 if successful, 0 if unsuccessful).
@@ -184,7 +184,7 @@ class EntsoeDownloader:
         df = df.dropna(subset=["production_type"])  # remove NaN rows
 
         write_df_to_csv(
-            df=df, file_path=Path(self.output_path, zone, year + ".csv"), index=True
+            df=df, file_path=Path(self.output_path, zone, f"{year}.csv"), index=True
         )
         logger.info(f"{zone} in {year}: Data downloaded and saved.")
         return 1

@@ -18,15 +18,16 @@ def test_config_validates(source: str, source_configs: dict):
     schema = SCHEMA_REGISTRY[source]
     cfg_dict = source_configs[source]
 
-    cfg_obj = schema.model_validate({"source": source, **cfg_dict})
-    assert cfg_obj.source == source
+    received_cfg_obj = schema.model_validate({"source": source, **cfg_dict})
+    received_cfg_dict = received_cfg_obj.model_dump(mode="json")
 
-    if cfg_dict.get("access"):
-        if cfg_dict["access"].get("api_key"):
-            assert cfg_obj.access.api_key == cfg_dict["access"]["api_key"]
-        if cfg_dict["access"].get("username"):
-            assert cfg_obj.access.username == cfg_dict["access"]["username"]
-            assert cfg_obj.access.password == cfg_dict["access"]["password"]
+    assert received_cfg_obj.source == source
+    for k, exp_v in cfg_dict.items():
+        if isinstance(exp_v, dict):
+            for sub_k, sub_v in exp_v.items():
+                assert received_cfg_dict[k][sub_k] == sub_v
+        else:
+            assert received_cfg_dict[k] == exp_v
 
 
 @pytest.mark.parametrize("source", list(SCHEMA_REGISTRY.keys()))
@@ -49,11 +50,11 @@ def test_config_with_access_rejects_placeholders(
     if not cfg_dict.get("access"):
         pytest.skip(f"Source '{source}' has no access block. Skipped.")
 
-    bad_cfg = {
+    bad_cfg_dict = {
         "source": source,
         **cfg_dict,
         "access": {k: bad for k in cfg_dict["access"].keys()},
     }
 
     with pytest.raises(ValidationError):
-        schema.model_validate(bad_cfg)
+        schema.model_validate(bad_cfg_dict)
