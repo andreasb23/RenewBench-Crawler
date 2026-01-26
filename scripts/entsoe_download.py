@@ -12,8 +12,7 @@ SOURCE = "entsoe"
 
 
 def parse_arguments() -> argparse.Namespace:
-    """
-    Parse command line arguments.
+    """Parse command line arguments.
 
     Returns:
         argparse.Namespace: Namespace parsed command line arguments.
@@ -52,9 +51,7 @@ def parse_arguments() -> argparse.Namespace:
 
 
 def main() -> None:
-    """
-    Coordinating Entso-E data download
-    """
+    """Coordinating Entso-E data download"""
     args = parse_arguments()
     overrides = parse_key_value_pairs(args.cfg_options) if args.cfg_options else None
 

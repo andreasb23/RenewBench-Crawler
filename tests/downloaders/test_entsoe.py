@@ -1,13 +1,13 @@
 # tests/downloaders/test_entsoe.py
-from pathlib import Path
 import pickle
+from pathlib import Path
 from typing import Generator
 from unittest.mock import patch
 
-from entsoe.query.decorators import ServiceUnavailableError
+import numpy as np
 import pandas as pd
 import pytest
-import numpy as np
+from entsoe.query.decorators import ServiceUnavailableError
 
 from rbc.downloaders.entsoe import EntsoeDownloader
 
@@ -50,8 +50,7 @@ def downloader(api_config, init_args: dict) -> EntsoeDownloader:
 def test_downloader_initialization(
     api_config, init_args: dict, bz: str, valid: bool
 ) -> None:
-    """
-    Check that the downloader sets up paths and checkpoint correctly.
+    """Check that the downloader sets up paths and checkpoint correctly.
 
     Args:
         api_config: Fixture that patches the ENTSO-E global configuration.
@@ -76,8 +75,7 @@ def test_downloader_initialization(
 
 
 def test_download_data_resume(api_config: Generator, init_args: dict) -> None:
-    """
-    Verify that EntsoeDownloader loads existing progress from the checkpoint file if
+    """Verify that EntsoeDownloader loads existing progress from the checkpoint file if
     resume is True.
 
     Args:
@@ -101,8 +99,7 @@ def test_download_data_resume(api_config: Generator, init_args: dict) -> None:
 
 
 def test_download_year_zone_data(downloader: EntsoeDownloader) -> None:
-    """
-    Check that _download_year_zone_data cleans data and writes a CSV after a successful
+    """Check that _download_year_zone_data cleans data and writes a CSV after a successful
     API call.
 
     Args:
@@ -143,8 +140,7 @@ def test_download_year_zone_data(downloader: EntsoeDownloader) -> None:
 def test_download_year_zone_data_service_unavailable(
     downloader: EntsoeDownloader,
 ) -> None:
-    """
-    Ensure that a ValueError is raised if the ENTSO-E API service is unavailable.
+    """Ensure that a ValueError is raised if the ENTSO-E API service is unavailable.
 
     Args:
         downloader (EntsoeDownloader): Instance of EntsoeDownloader class.
@@ -159,8 +155,7 @@ def test_download_year_zone_data_service_unavailable(
 
 
 def test_download_year_zone_data_no_data(downloader: EntsoeDownloader) -> None:
-    """
-    Ensure that EntsoeDownloader returns success (1) and skips processing if the
+    """Ensure that EntsoeDownloader returns success (1) and skips processing if the
     API returns no data.
 
     Args:

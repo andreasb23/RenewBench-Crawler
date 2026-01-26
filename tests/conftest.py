@@ -7,8 +7,7 @@ import yaml
 
 @pytest.fixture()
 def source_configs() -> dict:
-    """
-    Create a dictionary with example dict configs for all sources.
+    """Create a dictionary with example dict configs for all sources.
 
     Returns:
         dict: Dictionary of example source config dicts.
@@ -23,8 +22,7 @@ def source_configs() -> dict:
 
 @pytest.fixture()
 def tmp_configs_dir(tmp_path: Path, source_configs: dict) -> Path:
-    """
-    Create a temporary configs/ folder with all source configs inside them.
+    """Create a temporary configs/ folder with all source configs inside them.
 
     Args:
         tmp_path: Path to the temporary root folder.

@@ -1,17 +1,15 @@
-"""
---- Utils ---
+"""--- Utils ---
 Shared helper functions for data downloaders
 """
 
 from pathlib import Path
 
-from loguru import logger
 import pandas as pd
+from loguru import logger
 
 
 def write_df_to_csv(df: pd.DataFrame, file_path: Path, index: bool = False) -> None:
-    """
-    Write dataframe to csv file.
+    """Write dataframe to csv file.
 
     Args:
         df (pd.DataFrame): Pandas dataframe to be stored in csv file.

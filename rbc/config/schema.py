@@ -1,5 +1,4 @@
-"""
---- Data Source Configuration ---
+"""--- Data Source Configuration ---
 Schema definitions for different data sources.
 """
 
@@ -13,8 +12,7 @@ from pydantic import BaseModel, field_validator
 # General schemas
 # ----------------------------------
 class Paths(BaseModel):
-    """
-    Filesystem paths used by a data source.
+    """Filesystem paths used by a data source.
 
     Attributes:
         dst_dir_raw (Path): Destination directory for raw data output.
@@ -24,8 +22,7 @@ class Paths(BaseModel):
 
 
 class AccessAPI(BaseModel):
-    """
-    Access settings for a data source requiring API key / security token.
+    """Access settings for a data source requiring API key / security token.
 
     Attributes:
         api_key (str): API key.
@@ -35,8 +32,7 @@ class AccessAPI(BaseModel):
 
 
 class AccessValidation:
-    """
-    Validator for Pydantic models with an "access" field to ensure that all
+    """Validator for Pydantic models with an "access" field to ensure that all
     strings within it are not empty and do not contain placeholders.
     """
 
@@ -73,8 +69,7 @@ class AccessValidation:
 # Per-source schemas
 # ----------------------------------
 class EntsoeConfig(AccessValidation, BaseModel):
-    """
-    Configuration schema for the ENTSO-E data source.
+    """Configuration schema for the ENTSO-E data source.
 
     Attributes:
         source (Literal): Name of the data source.
