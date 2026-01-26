@@ -98,10 +98,6 @@ include your `<source>`.
        your `class <Source>Config`,
 
        --- [Example: _test_entsoe.py_ file](tests/downloaders/test_entsoe.py)
-    3. In the `tests/scripts/` folder, create a `test_entsoe_download.py` with tests
-       for your `scripts/<source>.py`.
-
-       --- [Example: _test_entsoe_download.py_ file](tests/scripts/test_entsoe_download.py)
 
 ## How to contribute
 Check out our [contribution guidelines](CONTRIBUTING.md) if you are interested in contributing to the RenewBench project :fire:.
