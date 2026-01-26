@@ -56,6 +56,22 @@ Coming soon :fire:
 
 ## Guides
 
+### Running data crawlers
+
+To run the data crawlers, use the scripts in the `scripts` folder. For example:
+```commandline
+python -m scripts.entsoe_download
+```
+Each data crawler requires an associated config in the `configs` folder, named as the
+data source is, i.e. `configs/entose.yaml`. Required values can be inserted there.
+
+The scripts are also designed as CLIs, so you can provide user arguments via flags.
+It is possible to overwrite the YAML config values via commandline, for example:
+```commandline
+python -m scripts.entsoe_download -o paths.dst_dir_raw=/my/new/path/
+```
+For more information, use `--help`.
+
 ### Including a new data source
 
 To create a data crawler for a new data source, you'll need to amend and
