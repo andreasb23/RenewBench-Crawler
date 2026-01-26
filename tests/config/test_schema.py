@@ -9,8 +9,7 @@ from rbc.config.schema import SCHEMA_REGISTRY
 
 @pytest.mark.parametrize("source", list(SCHEMA_REGISTRY.keys()))
 def test_config_validates(source: str, source_configs: dict) -> None:
-    """
-    Check the cfg output is valid given a set of expected inputs.
+    """Check the cfg output is valid given a set of expected inputs.
 
     Args:
         source (str): Name of the data source.
@@ -41,8 +40,7 @@ def test_config_validates(source: str, source_configs: dict) -> None:
 def test_config_with_access_rejects_placeholders(
     source: str, source_configs: dict, bad: str
 ) -> None:
-    """
-    Check that schemas with access requirements reject placeholder or empty
+    """Check that schemas with access requirements reject placeholder or empty
     values.
 
     Args:

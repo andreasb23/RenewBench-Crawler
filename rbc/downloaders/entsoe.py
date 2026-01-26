@@ -1,21 +1,19 @@
-"""
---- Entsoe-E Data Downloader ---
+"""--- Entsoe-E Data Downloader ---
 Remote API access of ENTSO-E Platform using the entsoe-apy package.
 """
 
-from pathlib import Path
 import pickle
+from pathlib import Path
 
-from entsoe.config import set_config, get_config
-from entsoe.Generation import ActualGenerationPerGenerationUnit
-from entsoe.query.decorators import ServiceUnavailableError
-from entsoe.utils import mappings, extract_records, add_timestamps
-from loguru import logger
 import numpy as np
 import pandas as pd
+from entsoe.config import get_config, set_config
+from entsoe.Generation import ActualGenerationPerGenerationUnit
+from entsoe.query.decorators import ServiceUnavailableError
+from entsoe.utils import add_timestamps, extract_records, mappings
+from loguru import logger
 
 from rbc.downloaders.utils import write_df_to_csv
-
 
 PSRTYPE_MAPPINGS = {
     # 'A03': 'Mixed',
@@ -58,8 +56,7 @@ RELEVANT_RECORD_KEYS = {
 
 
 class EntsoeDownloader:
-    """
-    Entsoe-E data downloader.
+    """Entsoe-E data downloader.
 
     Attributes:
         years (list[str]): List of years to get data for.
@@ -77,8 +74,7 @@ class EntsoeDownloader:
         bidding_zones: list[str] = mappings.keys(),
         resume: bool = False,
     ) -> None:
-        """
-        Initializes the instance.
+        """Initializes the instance.
 
         Attributes:
             token (str): The personal ENTSO-E RESTful API token.
@@ -119,9 +115,7 @@ class EntsoeDownloader:
             self.checkpoint = np.zeros((len(years), len(bidding_zones)))
 
     def download_data(self) -> None:
-        """
-        Parse data for all given years and zones from ENTSO-E Platform and save to CSV.
-        """
+        """Parse data for all given years and zones from ENTSO-E Platform and save to CSV."""
         for idx, year in enumerate(self.years):
             logger.info(f"Going through {year}...")
 
@@ -136,8 +130,7 @@ class EntsoeDownloader:
                     logger.info(f"{zone} in {year}: Data previously downloaded.")
 
     def _download_year_zone_data(self, zone: str, year: int) -> int:
-        """
-        Parse data for specific zone and year from ENTSO-E and dump to CSV.
+        """Parse data for specific zone and year from ENTSO-E and dump to CSV.
 
         Args:
             zone (str): Zone to download data for.

@@ -1,5 +1,4 @@
-"""
---- Data Source Configuration ---
+"""--- Data Source Configuration ---
 Loader for user-defined parameters (YAML config and CLI arguments)
 """
 
@@ -7,9 +6,9 @@ import argparse
 from pathlib import Path
 from typing import Any
 
+import yaml
 from loguru import logger
 from pydantic import BaseModel
-import yaml
 
 from rbc.config.schema import SCHEMA_REGISTRY
 
@@ -22,8 +21,7 @@ def load_config(
     configs_dir: Path | None = None,
     overrides: dict[str, Any] | None = None,
 ) -> BaseModel:
-    """
-    Load YAML config for a specific source.
+    """Load YAML config for a specific source.
 
     Args:
         source (str): Name of the data source, i.e. "entsoe".
@@ -58,8 +56,7 @@ def load_config(
 
 
 def update_config(base: dict, updates: dict) -> dict:
-    """
-    Update config dictionary with override values.
+    """Update config dictionary with override values.
 
     Args:
         base (dict): Dict of YAML base config values
@@ -80,8 +77,7 @@ def update_config(base: dict, updates: dict) -> dict:
 
 
 def parse_key_value_pairs(pairs: list[str]) -> dict[str, Any]:
-    """
-    Parse key-value pairs into nested dictionary.
+    """Parse key-value pairs into nested dictionary.
 
     Args:
         pairs (list[str]): Key-value pairs, i.e. ['a.b=x', ...].
