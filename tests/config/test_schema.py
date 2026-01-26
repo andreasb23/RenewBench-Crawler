@@ -1,4 +1,6 @@
 # tests/config/test_schema.py
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
@@ -25,7 +27,11 @@ def test_config_validates(source: str, source_configs: dict):
     for k, exp_v in cfg_dict.items():
         if isinstance(exp_v, dict):
             for sub_k, sub_v in exp_v.items():
-                assert received_cfg_dict[k][sub_k] == sub_v
+                received_v = received_cfg_dict[k][sub_k]
+                if isinstance(sub_v, str) and ("/" in sub_v or "\\" in sub_v):
+                    assert Path(received_v) == Path(sub_v)
+                else:
+                    assert received_v == sub_v
         else:
             assert received_cfg_dict[k] == exp_v
 
