@@ -76,7 +76,7 @@ class EntsoeDownloader:
         years: list[int],
         bidding_zones: list[str] = mappings.keys(),
         resume: bool = False,
-    ):
+    ) -> None:
         """
         Initializes the instance.
 
@@ -118,20 +118,24 @@ class EntsoeDownloader:
         else:
             self.checkpoint = np.zeros((len(years), len(bidding_zones)))
 
-    def dump_all_to_csv(self):
-        """Parse all data from ENTSO-E Platform and save to CSV."""
+    def download_data(self) -> None:
+        """
+        Parse data for all given years and zones from ENTSO-E Platform and save to CSV.
+        """
         for idx, year in enumerate(self.years):
             logger.info(f"Going through {year}...")
 
             for ibz, zone in enumerate(self.bidding_zones):
                 if self.checkpoint[idx, ibz] == 0:
-                    self.checkpoint[idx, ibz] = self.dump_to_csv(zone=zone, year=year)
+                    self.checkpoint[idx, ibz] = self._download_year_zone_data(
+                        zone=zone, year=year
+                    )
                     with open(self.checkpoint_path, "wb") as f:
                         pickle.dump(self.checkpoint, f)
                 else:
                     logger.info(f"{zone} in {year}: Data previously downloaded.")
 
-    def dump_to_csv(self, zone: str, year: int) -> int:
+    def _download_year_zone_data(self, zone: str, year: int) -> int:
         """
         Parse data for specific zone and year from ENTSO-E and dump to CSV.
 

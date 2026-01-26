@@ -7,7 +7,7 @@ from rbc.config.schema import SCHEMA_REGISTRY
 
 
 @pytest.mark.parametrize("source", list(SCHEMA_REGISTRY.keys()))
-def test_load_config(tmp_configs_dir: Path, source: str):
+def test_load_config(tmp_configs_dir: Path, source: str) -> None:
     """
     Check that "load_config" loads a YAML config for a source correctly.
 
@@ -22,7 +22,7 @@ def test_load_config(tmp_configs_dir: Path, source: str):
 @pytest.mark.parametrize("source", list(SCHEMA_REGISTRY.keys()))
 def test_load_config_with_overrides(
     tmp_configs_dir: Path, source_configs: dict, source: str
-):
+) -> None:
     """
     Check that "load_config" loads a YAML config for a source correctly
     with overrides.
@@ -51,7 +51,7 @@ def test_load_config_with_overrides(
             assert received_cfg_dict[k] == expected_v
 
 
-def test_load_config_missing_file(tmp_configs_dir: Path):
+def test_load_config_missing_file(tmp_configs_dir: Path) -> None:
     """
     Ensure that a source without a matching YAML config are rejected.
 
@@ -65,7 +65,7 @@ def test_load_config_missing_file(tmp_configs_dir: Path):
         loader.load_config(source="fake", configs_dir=tmp_configs_dir)
 
 
-def test_load_config_unknown_source(tmp_configs_dir: Path):
+def test_load_config_unknown_source(tmp_configs_dir: Path) -> None:
     """
     Ensure that existing YAML files for sources that are not in the model
     registry are rejected.

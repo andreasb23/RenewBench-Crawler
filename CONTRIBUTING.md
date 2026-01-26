@@ -77,7 +77,7 @@ By participating, you can help improve the project and make it even better :rais
                 attribute2 (type): Description of attribute 2.
             """
 
-            def __init__(self, attribute1: type):
+            def __init__(self, attribute1: type) -> None:
                 """Initializes the instance based on ...
 
                 Args:

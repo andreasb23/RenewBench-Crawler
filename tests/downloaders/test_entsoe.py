@@ -1,6 +1,7 @@
 # tests/downloaders/test_entsoe.py
 from pathlib import Path
 import pickle
+from typing import Generator
 from unittest.mock import patch
 
 from entsoe.query.decorators import ServiceUnavailableError
@@ -15,7 +16,8 @@ from rbc.downloaders.entsoe import EntsoeDownloader
 # Specific fixtures
 # ----------------------------------
 @pytest.fixture
-def api_config():
+def api_config() -> Generator:
+    """Fixture that patches the entsoe-apy package configuration."""
     with patch("rbc.downloaders.entsoe.set_config"):
         with patch("rbc.downloaders.entsoe.get_config") as mock_get:
             mock_get.return_value.security_token = "fake_token"
@@ -45,7 +47,9 @@ def downloader(api_config, init_args: dict) -> EntsoeDownloader:
 # Tests
 # ----------------------------------
 @pytest.mark.parametrize("bz, valid", [("10YES-REE------0", True), (" ", False)])
-def test_downloader_initialization(api_config, init_args: dict, bz: str, valid: bool):
+def test_downloader_initialization(
+    api_config, init_args: dict, bz: str, valid: bool
+) -> None:
     """
     Check that the downloader sets up paths and checkpoint correctly.
 
@@ -71,7 +75,7 @@ def test_downloader_initialization(api_config, init_args: dict, bz: str, valid: 
         np.testing.assert_array_equal(downloader.checkpoint, np.zeros((1, 1)))
 
 
-def test_dump_all_to_csv_resume(api_config, init_args: dict):
+def test_download_data_resume(api_config: Generator, init_args: dict) -> None:
     """
     Verify that EntsoeDownloader loads existing progress from the checkpoint file if
     resume is True.
@@ -89,16 +93,17 @@ def test_dump_all_to_csv_resume(api_config, init_args: dict):
     init_args["resume"] = True
     downloader = EntsoeDownloader(**init_args)
 
-    with patch.object(downloader, "dump_to_csv") as mock_dump:
-        downloader.dump_all_to_csv()
+    with patch.object(downloader, "_download_year_zone_data") as mock_dump:
+        downloader.download_data()
 
         assert mock_dump.call_count == 0
         np.testing.assert_array_equal(downloader.checkpoint, checkpoint)
 
 
-def test_dump_to_csv(downloader: EntsoeDownloader):
+def test_download_year_zone_data(downloader: EntsoeDownloader) -> None:
     """
-    Check that dump_to_csv cleans data and writes a CSV after a successful API call.
+    Check that _download_year_zone_data cleans data and writes a CSV after a successful
+    API call.
 
     Args:
         downloader (EntsoeDownloader): Instance of EntsoeDownloader class.
@@ -121,7 +126,7 @@ def test_dump_to_csv(downloader: EntsoeDownloader):
             ]
 
             # 2. RUN
-            status = downloader.dump_to_csv(zone, year)
+            status = downloader._download_year_zone_data(zone, year)
 
     # 3. ASSERT
     assert status == 1
@@ -135,7 +140,9 @@ def test_dump_to_csv(downloader: EntsoeDownloader):
     assert df.iloc[0]["production_type"] == "Biomass"
 
 
-def test_dump_to_csv_service_unavailable(downloader: EntsoeDownloader):
+def test_download_year_zone_data_service_unavailable(
+    downloader: EntsoeDownloader,
+) -> None:
     """
     Ensure that a ValueError is raised if the ENTSO-E API service is unavailable.
 
@@ -146,10 +153,12 @@ def test_dump_to_csv_service_unavailable(downloader: EntsoeDownloader):
         mock_api.return_value.query_api.side_effect = ServiceUnavailableError
 
         with pytest.raises(ValueError, match="unavailable"):
-            downloader.dump_to_csv(downloader.bidding_zones[0], downloader.years[0])
+            downloader._download_year_zone_data(
+                downloader.bidding_zones[0], downloader.years[0]
+            )
 
 
-def test_dump_to_csv_no_data(downloader: EntsoeDownloader):
+def test_download_year_zone_data_no_data(downloader: EntsoeDownloader) -> None:
     """
     Ensure that EntsoeDownloader returns success (1) and skips processing if the
     API returns no data.
@@ -160,7 +169,7 @@ def test_dump_to_csv_no_data(downloader: EntsoeDownloader):
     with patch("rbc.downloaders.entsoe.ActualGenerationPerGenerationUnit") as mock_api:
         mock_api.return_value.query_api.return_value = None
 
-        status = downloader.dump_to_csv(
+        status = downloader._download_year_zone_data(
             downloader.bidding_zones[0], downloader.years[0]
         )
 

@@ -51,7 +51,7 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     """
     Coordinating Entso-E data download
     """
@@ -67,7 +67,7 @@ def main():
         bidding_zones=args.bidding_zones,
         years=args.years,
     )
-    downloader.dump_all_to_csv()
+    downloader.download_data()
 
 
 if __name__ == "__main__":

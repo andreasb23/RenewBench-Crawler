@@ -73,7 +73,14 @@ class AccessValidation:
 # Per-source schemas
 # ----------------------------------
 class EntsoeConfig(AccessValidation, BaseModel):
-    """Configuration schema for the ENTSO-E data source."""
+    """
+    Configuration schema for the ENTSO-E data source.
+
+    Attributes:
+        source (Literal): Name of the data source.
+        paths (Paths): Paths pydantic model for paths.
+        access (AccessAPI): Access pydantic model for access settings.
+    """
 
     source: Literal["entsoe"] = "entsoe"
     paths: Paths
