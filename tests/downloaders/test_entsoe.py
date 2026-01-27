@@ -50,7 +50,9 @@ def downloader(api_config, init_args: dict) -> EntsoeDownloader:
 def test_downloader_initialization(
     api_config, init_args: dict, bz: str, valid: bool
 ) -> None:
-    """Check that the downloader sets up paths and checkpoint correctly.
+    """Happy path for class initialization.
+
+    Check that the EntsoeDownloader sets up paths and checkpoint correctly.
 
     Args:
         api_config: Fixture that patches the ENTSO-E global configuration.
@@ -75,8 +77,7 @@ def test_downloader_initialization(
 
 
 def test_download_data_resume(api_config: Generator, init_args: dict) -> None:
-    """Verify that EntsoeDownloader loads existing progress from the checkpoint file if
-    resume is True.
+    """Happy path for "download_data" method when resuming from checkpoint.
 
     Args:
         api_config: Fixture that patches the ENTSO-E global configuration.
@@ -99,8 +100,7 @@ def test_download_data_resume(api_config: Generator, init_args: dict) -> None:
 
 
 def test_download_year_zone_data(downloader: EntsoeDownloader) -> None:
-    """Check that _download_year_zone_data cleans data and writes a CSV after a successful
-    API call.
+    """Happy path for "_download_year_zone_data" method.
 
     Args:
         downloader (EntsoeDownloader): Instance of EntsoeDownloader class.
@@ -137,26 +137,8 @@ def test_download_year_zone_data(downloader: EntsoeDownloader) -> None:
     assert df.iloc[0]["production_type"] == "Biomass"
 
 
-def test_download_year_zone_data_service_unavailable(
-    downloader: EntsoeDownloader,
-) -> None:
-    """Ensure that a ValueError is raised if the ENTSO-E API service is unavailable.
-
-    Args:
-        downloader (EntsoeDownloader): Instance of EntsoeDownloader class.
-    """
-    with patch("rbc.downloaders.entsoe.ActualGenerationPerGenerationUnit") as mock_api:
-        mock_api.return_value.query_api.side_effect = ServiceUnavailableError
-
-        with pytest.raises(ValueError, match="unavailable"):
-            downloader._download_year_zone_data(
-                downloader.bidding_zones[0], downloader.years[0]
-            )
-
-
 def test_download_year_zone_data_no_data(downloader: EntsoeDownloader) -> None:
-    """Ensure that EntsoeDownloader returns success (1) and skips processing if the
-    API returns no data.
+    """Happy path for "_download_year_zone_data" method when no data is available.
 
     Args:
         downloader (EntsoeDownloader): Instance of EntsoeDownloader class.
@@ -169,3 +151,20 @@ def test_download_year_zone_data_no_data(downloader: EntsoeDownloader) -> None:
         )
 
     assert status == 1
+
+
+def test_download_year_zone_data_service_unavailable(
+    downloader: EntsoeDownloader,
+) -> None:
+    """Failure path for "_download_year_zone_data" method when service is unavailable.
+
+    Args:
+        downloader (EntsoeDownloader): Instance of EntsoeDownloader class.
+    """
+    with patch("rbc.downloaders.entsoe.ActualGenerationPerGenerationUnit") as mock_api:
+        mock_api.return_value.query_api.side_effect = ServiceUnavailableError
+
+        with pytest.raises(ValueError, match="unavailable"):
+            downloader._download_year_zone_data(
+                downloader.bidding_zones[0], downloader.years[0]
+            )

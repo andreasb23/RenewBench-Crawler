@@ -1,4 +1,5 @@
-"""--- Entsoe-E Data Downloader ---
+"""ENTSOE-E DATA DOWNLOADER.
+
 Remote API access of ENTSO-E Platform using the entsoe-apy package.
 """
 

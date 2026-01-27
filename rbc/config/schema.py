@@ -1,4 +1,5 @@
-"""--- Data Source Configuration ---
+"""DATA SOURCE CONFIGURATION.
+
 Schema definitions for different data sources.
 """
 
@@ -32,9 +33,7 @@ class AccessAPI(BaseModel):
 
 
 class AccessValidation:
-    """Validator for Pydantic models with an "access" field to ensure that all
-    strings within it are not empty and do not contain placeholders.
-    """
+    """Validator for "access" fields to ensure strings contain non-placeholder content."""
 
     @field_validator("access", mode="after")
     @classmethod

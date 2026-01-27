@@ -1,4 +1,5 @@
-"""--- Utils ---
+"""UTILS.
+
 Shared helper functions for data downloaders
 """
 

@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+"""ENTSOE-E DATA DOWNLOAD SCRIPT.
+
+Schema definitions for different data sources.
+"""
+
 import argparse
 from argparse import ArgumentParser
 
@@ -51,7 +56,7 @@ def parse_arguments() -> argparse.Namespace:
 
 
 def main() -> None:
-    """Coordinating Entso-E data download"""
+    """Coordinating Entso-E data download."""
     args = parse_arguments()
     overrides = parse_key_value_pairs(args.cfg_options) if args.cfg_options else None
 

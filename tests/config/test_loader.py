@@ -9,7 +9,9 @@ from rbc.config.schema import SCHEMA_REGISTRY
 
 @pytest.mark.parametrize("source", list(SCHEMA_REGISTRY.keys()))
 def test_load_config(tmp_configs_dir: Path, source: str) -> None:
-    """Check that "load_config" loads a YAML config for a source correctly.
+    """Happy path for "load_config" function.
+
+    Check that "load_config" loads a YAML config for a source correctly.
 
     Args:
         tmp_configs_dir (Path): Path to the temporary config directory.
@@ -23,7 +25,9 @@ def test_load_config(tmp_configs_dir: Path, source: str) -> None:
 def test_load_config_with_overrides(
     tmp_configs_dir: Path, source_configs: dict, source: str
 ) -> None:
-    """Check that "load_config" loads a YAML config for a source correctly
+    """Happy path for "load_config" function.
+
+    Check that "load_config" loads a YAML config for a source correctly
     with overrides.
 
     Args:
@@ -51,7 +55,7 @@ def test_load_config_with_overrides(
 
 
 def test_load_config_missing_file(tmp_configs_dir: Path) -> None:
-    """Ensure that a source without a matching YAML config are rejected.
+    """Failure path for "load_config" function when YAML is missing.
 
     Args:
         tmp_configs_dir (Path): Path to the temporary config directory.
@@ -64,8 +68,7 @@ def test_load_config_missing_file(tmp_configs_dir: Path) -> None:
 
 
 def test_load_config_unknown_source(tmp_configs_dir: Path) -> None:
-    """Ensure that existing YAML files for sources that are not in the model
-    registry are rejected.
+    """Failure path for "load_config" function when data source is not in registry.
 
     Args:
         tmp_configs_dir (Path): Path to the temporary config directory.

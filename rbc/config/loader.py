@@ -1,4 +1,5 @@
-"""--- Data Source Configuration ---
+"""DATA SOURCE CONFIGURATION.
+
 Loader for user-defined parameters (YAML config and CLI arguments)
 """
 

@@ -43,8 +43,7 @@ By participating, you can help improve the project and make it even better :rais
 
      ```python
      def defined_function(param1: type, param2: type = default) -> type:
-        """
-        Short Description.
+        """Short Description.
 
         Long Description (if needed).
 
@@ -67,8 +66,7 @@ By participating, you can help improve the project and make it even better :rais
 
         ```python
         class DefinedClass:
-            """
-            Summary of class here.
+            """Summary of class here.
 
             Detailed class description (if needed).
 
