@@ -1,4 +1,4 @@
-# tests/downloaders/test_entsoe.py
+# tests/downloaders/test_downloader.py
 import pickle
 from pathlib import Path
 from typing import Generator
@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 from entsoe.query.decorators import ServiceUnavailableError
 
-from rbc.downloaders.entsoe import EntsoeDownloader
+from rbc.energy.entsoe import EntsoeDownloader
 
 
 # ----------------------------------
@@ -18,8 +18,8 @@ from rbc.downloaders.entsoe import EntsoeDownloader
 @pytest.fixture
 def api_config() -> Generator:
     """Fixture that patches the entsoe-apy package configuration."""
-    with patch("rbc.downloaders.entsoe.set_config"):
-        with patch("rbc.downloaders.entsoe.get_config") as mock_get:
+    with patch("rbc.energy.entsoe.downloader.set_config"):
+        with patch("rbc.energy.entsoe.downloader.get_config") as mock_get:
             mock_get.return_value.security_token = "fake_token"
             yield
 
@@ -30,7 +30,7 @@ def init_args(tmp_path: Path) -> dict:
     return {
         "token": "fake_token",
         "output_path": tmp_path,
-        "years": ["2020"],
+        "years": [2020],
         "bidding_zones": ["10YES-REE------0"],
         "resume": False,
     }
@@ -109,8 +109,10 @@ def test_download_year_zone_data(downloader: EntsoeDownloader) -> None:
     year = downloader.years[0]
 
     # 1. SETUP MOCKS (for the API response)
-    with patch("rbc.downloaders.entsoe.ActualGenerationPerGenerationUnit") as mock_api:
-        with patch("rbc.downloaders.entsoe.extract_records") as mock_extract:
+    with patch(
+        "rbc.energy.entsoe.downloader.ActualGenerationPerGenerationUnit"
+    ) as mock_api:
+        with patch("rbc.energy.entsoe.downloader.extract_records") as mock_extract:
             mock_api.return_value.query_api.return_value = "mock_result"
             mock_extract.return_value = [
                 {
@@ -143,7 +145,9 @@ def test_download_year_zone_data_no_data(downloader: EntsoeDownloader) -> None:
     Args:
         downloader (EntsoeDownloader): Instance of EntsoeDownloader class.
     """
-    with patch("rbc.downloaders.entsoe.ActualGenerationPerGenerationUnit") as mock_api:
+    with patch(
+        "rbc.energy.entsoe.downloader.ActualGenerationPerGenerationUnit"
+    ) as mock_api:
         mock_api.return_value.query_api.return_value = None
 
         status = downloader._download_year_zone_data(
@@ -161,7 +165,9 @@ def test_download_year_zone_data_service_unavailable(
     Args:
         downloader (EntsoeDownloader): Instance of EntsoeDownloader class.
     """
-    with patch("rbc.downloaders.entsoe.ActualGenerationPerGenerationUnit") as mock_api:
+    with patch(
+        "rbc.energy.entsoe.downloader.ActualGenerationPerGenerationUnit"
+    ) as mock_api:
         mock_api.return_value.query_api.side_effect = ServiceUnavailableError
 
         with pytest.raises(ValueError, match="unavailable"):

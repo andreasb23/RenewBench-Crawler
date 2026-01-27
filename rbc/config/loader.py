@@ -37,15 +37,17 @@ def load_config(
         ValueError: If no config YAML file exists for the given source.
     """
     configs_dir = configs_dir or CONFIGS_DIR
-    cfg_path = Path(configs_dir, source + ".yaml")
-    if not cfg_path.is_file():
-        raise ValueError(f"Config file for {source} not found: {cfg_path}")
+    try:
+        cfg_path = next(Path(configs_dir).rglob(f"{source}.yaml"))
+    except StopIteration:
+        raise ValueError(f"Source '{source}' is missing a YAML config file!")
 
+    logger.info(f"Loading '{source}' YAML config...")
     cfg = yaml.safe_load(cfg_path.read_text()) or {}
     cfg = {"source": source, **cfg}
 
     if overrides:
-        logger.info(f"Overriding {source} YAML config values with:\n{overrides}")
+        logger.info(f"Overriding '{source}' YAML config values with:\n{overrides}")
         cfg = update_config(cfg, overrides)
 
     try:
