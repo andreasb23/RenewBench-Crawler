@@ -9,6 +9,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/RenewBench-Association/RenewBench-Crawler/main.svg)](https://results.pre-commit.ci/latest/github/RenewBench-Association/RenewBench-Crawler/main)
 [![](https://img.shields.io/badge/Contact-renewbench%40lists.kit.edu-orange)](renewbench@lists.kit.edu)
+[![codecov](https://codecov.io/gh/RenewBench-Association/RenewBench-Crawler/graph/badge.svg?token=WPJJT4S0RA)](https://codecov.io/gh/RenewBench-Association/RenewBench-Crawler)
 
 ## What is the RenewBench Crawler Repository?
 
