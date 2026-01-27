@@ -14,7 +14,7 @@ from entsoe.query.decorators import ServiceUnavailableError
 from entsoe.utils import add_timestamps, extract_records, mappings
 from loguru import logger
 
-from rbc.downloaders.utils import write_df_to_csv
+from rbc.energy.utils import write_df_to_csv
 
 PSRTYPE_MAPPINGS = {
     # 'A03': 'Mixed',
