@@ -43,8 +43,7 @@ By participating, you can help improve the project and make it even better :rais
 
      ```python
      def defined_function(param1: type, param2: type = default) -> type:
-        """
-        Short Description.
+        """Short Description.
 
         Long Description (if needed).
 
@@ -67,8 +66,7 @@ By participating, you can help improve the project and make it even better :rais
 
         ```python
         class DefinedClass:
-            """
-            Summary of class here.
+            """Summary of class here.
 
             Detailed class description (if needed).
 
@@ -77,7 +75,7 @@ By participating, you can help improve the project and make it even better :rais
                 attribute2 (type): Description of attribute 2.
             """
 
-            def __init__(self, attribute1: type):
+            def __init__(self, attribute1: type) -> None:
                 """Initializes the instance based on ...
 
                 Args:

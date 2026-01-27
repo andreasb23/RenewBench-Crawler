@@ -9,6 +9,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/RenewBench-Association/RenewBench-Crawler/main.svg)](https://results.pre-commit.ci/latest/github/RenewBench-Association/RenewBench-Crawler/main)
 [![](https://img.shields.io/badge/Contact-renewbench%40lists.kit.edu-orange)](renewbench@lists.kit.edu)
+[![codecov](https://codecov.io/gh/RenewBench-Association/RenewBench-Crawler/graph/badge.svg?token=WPJJT4S0RA)](https://codecov.io/gh/RenewBench-Association/RenewBench-Crawler)
 
 ## What is the RenewBench Crawler Repository?
 
@@ -40,6 +41,80 @@ The RenewBench-Crawlers repository is structured as shown below:
 
 ## Documentation
 Coming soon :fire:
+
+### Data sources
+
+| Region      | Source   | Platform                                                                            | Docs                                                                                                                 |
+|-------------|----------|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| Europe      | Entso-e  | [TP](https://transparency.entsoe.eu/)                                               | [API guide](https://transparencyplatform.zendesk.com/hc/en-us/sections/12783116987028-Restful-API-integration-guide) |
+| Turkey      | EPIAS    | [TP](https://seffaflik.epias.com.tr/home)                                           | [Docs](https://seffaflik.epias.com.tr/electricity-service/technical/en/index.html)                                   |
+| USA         | EIA      | [API browser](www.eia.gov/opendata/browser/)                                        | [API docs](https://www.eia.gov/opendata/documentation.php)                                                           |
+| Canada      | IESO     |                                                                                     |                                                                                                                      |
+| Chile       | CEN      |                                                                                     |                                                                                                                      |
+| Australia   | AEMO     |                                                                                     |                                                                                                                      |
+| New Zealand | EAT      |                                                                                     |                                                                                                                      |
+| Taiwan      | Taipower | [Realtime data](https://www.taipower.com.tw/d006/loadGraph/loadGraph/genshx_e.html) | -                                                                                                                    |
+
+## Guides
+
+### Running data crawlers
+
+To run the data crawlers, use the scripts in the `scripts` folder. For example:
+```commandline
+python -m scripts.entsoe_download
+```
+Each data crawler requires an associated config in the `configs` folder, named as the
+data source is, i.e. `configs/entose.yaml`. Required values can be inserted there.
+
+The scripts are also designed as CLIs, so you can provide user arguments via flags.
+It is possible to overwrite the YAML config values via commandline, for example:
+```commandline
+python -m scripts.entsoe_download -o paths.dst_dir_raw=/my/new/path/
+```
+For more information, use `--help`.
+
+### Including a new data source
+
+To create a data crawler for a new data source, you'll need to amend and
+create several files. Here is an overview of the necessary changes to
+include your `<source>`.
+ You can always look at other crawlers such as `entsoe` for reference.
+
+1. **Config** ([configs/](configs)): -----
+    [Example: _entsoe.yaml_ file](configs/entsoe.yaml)
+
+    Create a `<source>.yaml`. At minimum, it will
+    require a destination directory (`paths/dst_dir_raw`) as well as any access
+    information one might need to crawl the data (`access/...`), i.e. API
+    tokens or account log-in data.
+2. **Config loader** ([rbc/config/schema.py](rbc/config/schema.py)): -----
+   [Example: _EntsoeConfig_ class](rbc/config/schema.py#L75)
+
+    Amend the `schema.py` to
+    - include a `class <Source>Config` with the attributes required by the
+      `.yaml`.
+    - add your class to the `SCHEMA_REGISTRY` at the bottom of the file.
+3. **Downloader** ([rbc/downloaders/](rbc/downloaders)): -----
+    [Example: _entsoe.py_ file](rbc/downloaders/entsoe.py)
+
+    Create a `<source>.py` file containing a `class <Source>Downloader` to
+    coordinate data crawling.
+4. **Script** ([scripts/](scripts)): -----
+    [Example: _entsoe_download.py_ file](scripts/entsoe_download.py)
+
+    Create a `<source>_download.py` to run the downloader `<source>.py`.
+5. **Tests** ([tests/](tests)):
+
+    Add in tests for your data crawler:
+    1. In the `tests/conftest.py`, update the dict returned by the `source_configs`
+       function to include a dict version of your `<source>.yaml` with
+       placeholders,
+
+       --- [Example: _source_configs_ function](tests/conftest.py#L16)
+    2. In the `tests/downloaders/` folder, create a `test_<source>.py` with tests for
+       your `class <Source>Config`,
+
+       --- [Example: _test_entsoe.py_ file](tests/downloaders/test_entsoe.py)
 
 ## How to contribute
 Check out our [contribution guidelines](CONTRIBUTING.md) if you are interested in contributing to the RenewBench project :fire:.
