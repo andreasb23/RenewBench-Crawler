@@ -63,7 +63,7 @@ def test_load_config_missing_file(tmp_configs_dir: Path) -> None:
     fake_cfg_path = Path(tmp_configs_dir, "fake.yaml")
     fake_cfg_path.unlink(missing_ok=True)
 
-    with pytest.raises(ValueError, match="not found"):
+    with pytest.raises(ValueError, match="missing"):
         loader.load_config(source="fake", configs_dir=tmp_configs_dir)
 
 

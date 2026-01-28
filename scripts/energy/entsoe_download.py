@@ -11,7 +11,7 @@ from entsoe.utils import mappings
 from loguru import logger
 
 from rbc.config.loader import load_config, parse_key_value_pairs
-from rbc.downloaders.entsoe import EntsoeDownloader
+from rbc.energy.entsoe import EntsoeDownloader
 
 SOURCE = "entsoe"
 

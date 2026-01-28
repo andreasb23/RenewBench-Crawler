@@ -44,6 +44,8 @@ Coming soon :fire:
 
 ### Data sources
 
+#### Energy
+
 | Region      | Source   | Platform                                                                            | Docs                                                                                                                 |
 |-------------|----------|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | Europe      | Entso-e  | [TP](https://transparency.entsoe.eu/)                                               | [API guide](https://transparencyplatform.zendesk.com/hc/en-us/sections/12783116987028-Restful-API-integration-guide) |
@@ -55,13 +57,19 @@ Coming soon :fire:
 | New Zealand | EAT      |                                                                                     |                                                                                                                      |
 | Taiwan      | Taipower | [Realtime data](https://www.taipower.com.tw/d006/loadGraph/loadGraph/genshx_e.html) | -                                                                                                                    |
 
+#### Weather
+
+| Region      | Source   | Platform                                                                            | Docs                                                                                                                 |
+|-------------|----------|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+
+
 ## Guides
 
-### Running data crawlers
+### Running scripts
 
 To run the data crawlers, use the scripts in the `scripts` folder. For example:
 ```commandline
-python -m scripts.entsoe_download
+python -m scripts.energy.entsoe_download
 ```
 Each data crawler requires an associated config in the `configs` folder, named as the
 data source is, i.e. `configs/entose.yaml`. Required values can be inserted there.
@@ -69,7 +77,7 @@ data source is, i.e. `configs/entose.yaml`. Required values can be inserted ther
 The scripts are also designed as CLIs, so you can provide user arguments via flags.
 It is possible to overwrite the YAML config values via commandline, for example:
 ```commandline
-python -m scripts.entsoe_download -o paths.dst_dir_raw=/my/new/path/
+python -m scripts.energy.entsoe_download -o paths.dst_dir_raw=/my/new/path/
 ```
 For more information, use `--help`.
 
@@ -77,44 +85,49 @@ For more information, use `--help`.
 
 To create a data crawler for a new data source, you'll need to amend and
 create several files. Here is an overview of the necessary changes to
-include your `<source>`.
- You can always look at other crawlers such as `entsoe` for reference.
+include your `<source>` for `<type> = energy | weather` data.
+ You can always look at other crawlers such as `energy/entsoe` for reference.
 
-1. **Config** ([configs/](configs)): -----
-    [Example: _entsoe.yaml_ file](configs/entsoe.yaml)
+1. **Config** ([configs/\<type\>/](configs)): -----
+    [Example: _entsoe.yaml_ file](configs/energy/entsoe.yaml)
 
-    Create a `<source>.yaml`. At minimum, it will
-    require a destination directory (`paths/dst_dir_raw`) as well as any access
-    information one might need to crawl the data (`access/...`), i.e. API
-    tokens or account log-in data.
+    Create a `<type>/<source>.yaml` with (at minimum)
+    - a destination directory for storing data (`paths/dst_dir_raw`)
+    - any potential access information required to crawl the data (`access/...`), i.e.
+      API tokens or account log-in data.
+
 2. **Config loader** ([rbc/config/schema.py](rbc/config/schema.py)): -----
    [Example: _EntsoeConfig_ class](rbc/config/schema.py#L75)
 
-    Amend the `schema.py` to
+    Amend the `rbc/config/schema.py` to
     - include a `class <Source>Config` with the attributes required by the
       `.yaml`.
     - add your class to the `SCHEMA_REGISTRY` at the bottom of the file.
-3. **Downloader** ([rbc/downloaders/](rbc/downloaders)): -----
-    [Example: _entsoe.py_ file](rbc/downloaders/entsoe.py)
 
-    Create a `<source>.py` file containing a `class <Source>Downloader` to
-    coordinate data crawling.
-4. **Script** ([scripts/](scripts)): -----
-    [Example: _entsoe_download.py_ file](scripts/entsoe_download.py)
+3. **Source folder** ([rbc/\<type\>/\<source\>](rbc)): -----
+    [Example: _entsoe_ folder](rbc/energy/entsoe)
 
-    Create a `<source>_download.py` to run the downloader `<source>.py`.
+    Create a `rbc/<type>/<source>` folder containing
+    - a `downloader.py` with a `class <Source>Downloader` to coordinate data crawling.
+
+4. **Script** ([scripts/\<type\>/\<source\>_...py](scripts)): -----
+    [Example: _entsoe_download.py_ file](scripts/energy/entsoe_download.py)
+
+    Create a script for each of your source's functionalities from step 3, i.e.
+    - a `<type>/<source>_download.py` to run the `downloader.py`.
+
 5. **Tests** ([tests/](tests)):
 
     Add in tests for your data crawler:
-    1. In the `tests/conftest.py`, update the dict returned by the `source_configs`
-       function to include a dict version of your `<source>.yaml` with
+    1. In the `tests/config/conftest.py`, update the dict returned by the
+       `source_configs` function to include a dict version of your `<source>.yaml` with
        placeholders,
 
-       --- [Example: _source_configs_ function](tests/conftest.py#L16)
-    2. In the `tests/downloaders/` folder, create a `test_<source>.py` with tests for
-       your `class <Source>Config`,
+       --- [Example: _source_configs_ function](tests/config/conftest.py#L16)
+    2. In the `tests/<type>/<source>` folder, create a `test_...py` with tests for
+       each of the given functionalities, i.e. `test_downloader.py`.
 
-       --- [Example: _test_entsoe.py_ file](tests/downloaders/test_entsoe.py)
+       --- [Example: _test_downloader.py_ file](tests/energy/entsoe/test_downloader.py)
 
 ## How to contribute
 Check out our [contribution guidelines](CONTRIBUTING.md) if you are interested in contributing to the RenewBench project :fire:.
