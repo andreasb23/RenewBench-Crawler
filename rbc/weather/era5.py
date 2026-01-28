@@ -452,19 +452,19 @@ class Era5Downloader:
         if invalid_single_level:
             error_messages.append(
                 f"Invalid single-level variables: {', '.join(invalid_single_level)}\n"
-                f"Run 'python scripts/era5_download.py --list-variables' to see available variables."
+                f"Run 'python scripts/weather/era5_download.py --list-variables' to see available variables."
             )
 
         if invalid_pressure_level:
             error_messages.append(
                 f"Invalid pressure-level variables: {', '.join(invalid_pressure_level)}\n"
-                f"Run 'python scripts/era5_download.py --list-variables' to see available variables."
+                f"Run 'python scripts/weather/era5_download.py --list-variables' to see available variables."
             )
 
         if invalid_model_level:
             error_messages.append(
                 f"Invalid model-level variables: {', '.join(invalid_model_level)}\n"
-                f"Run 'python scripts/era5_download.py --list-variables' to see available variables."
+                f"Run 'python scripts/weather/era5_download.py --list-variables' to see available variables."
             )
 
         if error_messages:
@@ -816,14 +816,14 @@ class Era5Downloader:
         print("=" * 80)
         print("\n1. Single-level variables only:")
         print(
-            "   python scripts/era5_download.py -y 2020 -m 01 -v 2m_temperature surface_pressure\n"
+            "   python scripts/weather/era5_download.py -y 2020 -m 01 -v 2m_temperature surface_pressure\n"
         )
         print("2. Pressure-level variables with default levels:")
         print(
-            "   python scripts/era5_download.py -y 2020 -m 01 -v temperature u_component_of_wind -pl\n"
+            "   python scripts/weather/era5_download.py -y 2020 -m 01 -v temperature u_component_of_wind -pl\n"
         )
         print("3. Model-level variables with custom levels:")
         print(
-            "   python scripts/era5_download.py -y 2020 -m 01 -v temperature -ml 135 136 137\n"
+            "   python scripts/weather/era5_download.py -y 2020 -m 01 -v temperature -ml 135 136 137\n"
         )
         print("=" * 80 + "\n")

@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 from loguru import logger
 
 from rbc.config.loader import load_config, parse_key_value_pairs
-from rbc.nwp_dowloaders.era5 import Era5Downloader
+from rbc.weather.era5 import Era5Downloader
 
 SOURCE = "era5"
 
