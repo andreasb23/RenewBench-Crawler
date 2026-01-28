@@ -1,0 +1,5 @@
+paths:
+  dst_dir_raw: /lsdf/raw/era5/
+access:
+  api_url: "https://cds.climate.copernicus.eu/api"
+  api_key: "YOUR-CDS-KEY---DON'T-COMMIT!!!"

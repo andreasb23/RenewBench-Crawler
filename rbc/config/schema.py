@@ -81,9 +81,36 @@ class EntsoeConfig(AccessValidation, BaseModel):
     access: AccessAPI
 
 
+class AccessCDS(BaseModel):
+    """Access settings for CDS API (Copernicus Data Store).
+
+    Attributes:
+        api_url (str): CDS API URL.
+        api_key (str): CDS API key.
+    """
+
+    api_url: str
+    api_key: str
+
+
+class Era5Config(AccessValidation, BaseModel):
+    """Configuration schema for the ERA5 NWP data source.
+
+    Attributes:
+        source (Literal): Name of the data source.
+        paths (Paths): Paths pydantic model for paths.
+        access (AccessCDS): Access pydantic model for CDS API settings.
+    """
+
+    source: Literal["era5"] = "era5"
+    paths: Paths
+    access: AccessCDS
+
+
 # ----------------------------------
 # Schema registry
 # ----------------------------------
 SCHEMA_REGISTRY: dict[str, Type[BaseModel]] = {
     "entsoe": EntsoeConfig,
+    "era5": Era5Config,
 }
