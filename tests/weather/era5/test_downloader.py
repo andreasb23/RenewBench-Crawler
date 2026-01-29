@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 from rbc.weather.era5 import Era5Downloader
+from rbc.weather.utils import get_days_in_month
 
 
 # ----------------------------------
@@ -43,7 +44,7 @@ def init_args(tmp_path: Path, api_credentials: dict) -> dict:
 @pytest.fixture
 def downloader(init_args: dict) -> Era5Downloader:
     """Returns an instantiated Era5Downloader with mocked CDS client."""
-    with patch("rbc.weather.era5.cdsapi.Client"):
+    with patch("rbc.weather.era5.downloader.cdsapi.Client"):
         dl = Era5Downloader(**init_args)
     return dl
 
@@ -57,7 +58,7 @@ def test_downloader_initialization(init_args: dict) -> None:
     Args:
         init_args (dict): Arguments used to initialise an Era5Downloader instance.
     """
-    with patch("rbc.weather.era5.cdsapi.Client"):
+    with patch("rbc.weather.era5.downloader.cdsapi.Client"):
         downloader = Era5Downloader(**init_args)
 
         assert downloader.years == init_args["years"]
@@ -81,7 +82,7 @@ def test_downloader_initialization_default_months(
         api_credentials (dict): API credentials.
         tmp_path (Path): Temporary directory.
     """
-    with patch("rbc.weather.era5.cdsapi.Client"):
+    with patch("rbc.weather.era5.downloader.cdsapi.Client"):
         downloader = Era5Downloader(
             **api_credentials,
             output_path=tmp_path,
@@ -103,7 +104,7 @@ def test_downloader_initialization_invalid_format(
         tmp_path (Path): Temporary directory.
     """
     with pytest.raises(ValueError, match="file_format must be"):
-        with patch("rbc.weather.era5.cdsapi.Client"):
+        with patch("rbc.weather.era5.downloader.cdsapi.Client"):
             Era5Downloader(
                 **api_credentials,
                 output_path=tmp_path,
@@ -124,7 +125,7 @@ def test_checkpoint_initialization_single_level_only(
         api_credentials (dict): API credentials.
         tmp_path (Path): Temporary directory.
     """
-    with patch("rbc.weather.era5.cdsapi.Client"):
+    with patch("rbc.weather.era5.downloader.cdsapi.Client"):
         # When pressure_levels and model_levels are None, pressure_levels defaults to STANDARD_PRESSURE_LEVELS
         # But we still get a 3D checkpoint because of the default behavior
         # To get only single-level, we would need to explicitly handle it differently
@@ -159,7 +160,7 @@ def test_checkpoint_initialization_with_pressure_and_model(
         api_credentials (dict): API credentials.
         tmp_path (Path): Temporary directory.
     """
-    with patch("rbc.weather.era5.cdsapi.Client"):
+    with patch("rbc.weather.era5.downloader.cdsapi.Client"):
         downloader = Era5Downloader(
             **api_credentials,
             output_path=tmp_path,
@@ -189,7 +190,7 @@ def test_checkpoint_resume(api_credentials: dict, tmp_path: Path) -> None:
     with open(checkpoint_path, "wb") as f:
         pickle.dump(checkpoint, f)
 
-    with patch("rbc.weather.era5.cdsapi.Client"):
+    with patch("rbc.weather.era5.downloader.cdsapi.Client"):
         downloader = Era5Downloader(
             **api_credentials,
             output_path=tmp_path,
@@ -227,7 +228,7 @@ def test_validate_variables_invalid_single_level(
         tmp_path (Path): Temporary directory.
     """
     with pytest.raises(ValueError, match="Invalid pressure-level variables"):
-        with patch("rbc.weather.era5.cdsapi.Client"):
+        with patch("rbc.weather.era5.downloader.cdsapi.Client"):
             Era5Downloader(
                 **api_credentials,
                 output_path=tmp_path,
@@ -249,7 +250,7 @@ def test_validate_variables_invalid_pressure_level(
     """
     # 2m_temperature is valid but only at single-level. If we request it with pressure levels,
     # it will just be filtered to single-level only (no error raised)
-    with patch("rbc.weather.era5.cdsapi.Client"):
+    with patch("rbc.weather.era5.downloader.cdsapi.Client"):
         downloader = Era5Downloader(
             **api_credentials,
             output_path=tmp_path,
@@ -324,7 +325,7 @@ def test_build_mars_request_batch_model_level(
         api_credentials (dict): API credentials.
         tmp_path (Path): Temporary directory.
     """
-    with patch("rbc.weather.era5.cdsapi.Client"):
+    with patch("rbc.weather.era5.downloader.cdsapi.Client"):
         downloader = Era5Downloader(
             **api_credentials,
             output_path=tmp_path,
@@ -415,7 +416,7 @@ def test_get_days_in_month(year: int, month: str, expected_days: int) -> None:
         month (str): Month.
         expected_days (int): Expected number of days.
     """
-    days = Era5Downloader._get_days_in_month(year, month)
+    days = get_days_in_month(year, month)
     assert days == expected_days
 
 
