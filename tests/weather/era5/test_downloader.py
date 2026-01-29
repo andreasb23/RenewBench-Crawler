@@ -126,7 +126,7 @@ def test_checkpoint_initialization_single_level_only(
         tmp_path (Path): Temporary directory.
     """
     with patch("rbc.weather.era5.downloader.cdsapi.Client"):
-        # When pressure_levels and model_levels are None, pressure_levels defaults to STANDARD_PRESSURE_LEVELS
+        # When pressure_levels and model_levels are None, pressure_levels defaults to DEFAULT_PRESSURE_LEVELS
         # But we still get a 3D checkpoint because of the default behavior
         # To get only single-level, we would need to explicitly handle it differently
         # For now, test that when only single-level variables exist, the checkpoint is sized accordingly
@@ -140,9 +140,9 @@ def test_checkpoint_initialization_single_level_only(
             model_levels=None,
         )
 
-        # When defaults are used (pressure_levels defaults to STANDARD, no model_levels),
+        # When defaults are used (pressure_levels default, no model_levels),
         # checkpoint has 3 dimensions: (years, months, level_types)
-        # With STANDARD_PRESSURE_LEVELS: has pressure-level data
+        # With DEFAULT_PRESSURE_LEVELS: has pressure-level data
         assert downloader.checkpoint.ndim == 3
         assert downloader.checkpoint.shape == (
             2,

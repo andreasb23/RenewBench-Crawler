@@ -20,12 +20,17 @@ class Era5Downloader:
         years (list[int]): List of years to get data for.
         months (list[str]): List of months to get data for.
         variables (list[str]): List of ERA5 variables to download.
-        area (list[float]): Bounding box [North, West, South, East] in degrees.
-        pressure_levels (list[str]): List of pressure levels to download (for 3D variables).
-        model_levels (list[str]): List of model levels to download (for 3D variables).
+        area (list[float] | None): Bounding box [North, West, South, East] in degrees. None for world (all).
+        pressure_levels (list[str] | None): List of pressure levels to download (for 3D variables).
+        model_levels (list[str] | None): List of model levels to download (for 3D variables).
         output_path (Path): Path to the output directory.
         checkpoint_path (Path): Path to the checkpoint file for resuming.
-        checkpoint (np.array): Array of 0 and 1 values for resuming.
+        checkpoint (np.ndarray): Array of 0 and 1 values for tracking download status.
+        client (cdsapi.Client): CDS API client for retrieving data.
+        dry_run (bool): If True, print requests without submitting them.
+        file_format (str): Output file format ("grib" or "netcdf").
+        file_extension (str): File extension based on file_format.
+        resolution (str): Grid resolution (e.g., "0.25/0.25").
     """
 
     # Type annotations for instance attributes
@@ -43,25 +48,6 @@ class Era5Downloader:
     file_format: str
     file_extension: str
     resolution: str
-
-    # Common ERA5 variables for renewable energy applications
-    DEFAULT_VARIABLES = [
-        # 2D surface variables
-        "10m_u_component_of_wind",
-        "10m_v_component_of_wind",
-        "100m_u_component_of_wind",
-        "100m_v_component_of_wind",
-        "2m_temperature",
-        "surface_solar_radiation_downwards",
-        "surface_pressure",
-        "total_precipitation",
-        # 3D variables at pressure levels
-        "temperature",
-        "u_component_of_wind",
-        "v_component_of_wind",
-        "relative_humidity",
-        "geopotential",
-    ]
 
     # 2D single-level variables (no vertical levels needed)
     # All available single-level ERA5 variables
@@ -182,9 +168,24 @@ class Era5Downloader:
         "vorticity",
     }
 
-    # Standard pressure levels (hPa)
-    # Lowest 3: 1000 hPa (~110m), 975 hPa (~300m), 950 hPa (~560m)
-    STANDARD_PRESSURE_LEVELS = ["1000", "975", "950"]
+    # Default: 13 variables (8 single-level surface + 5 pressure-level atmospheric)
+    DEFAULT_VARIABLES = [
+        # 2D surface variables
+        "10m_u_component_of_wind",
+        "10m_v_component_of_wind",
+        "100m_u_component_of_wind",
+        "100m_v_component_of_wind",
+        "2m_temperature",
+        "surface_solar_radiation_downwards",
+        "surface_pressure",
+        "total_precipitation",
+        # 3D variables at pressure levels
+        "temperature",
+        "u_component_of_wind",
+        "v_component_of_wind",
+        "relative_humidity",
+        "geopotential",
+    ]
 
     # All available pressure levels in ERA5
     ALL_PRESSURE_LEVELS = [
@@ -227,12 +228,14 @@ class Era5Downloader:
         "1000",
     ]
 
-    # Model levels (1-137, where 137 is the surface)
-    # Lowest 5 model levels (approximately: 133~150m, 134~100-120m, 135~50-70m, 136~10-15m, 137~surface)
-    STANDARD_MODEL_LEVELS = ["133", "134", "135", "136", "137"]
+    # Default: 1000, 975, 950 hPa (lowest 3 pressure levels, ~110m, ~300m, ~560m altitude)
+    DEFAULT_PRESSURE_LEVELS = ["1000", "975", "950"]
 
-    # All available model levels in ERA5
+    # All available model levels in ERA5 (1-137, where 137 is the surface)
     ALL_MODEL_LEVELS = [str(i) for i in range(1, 138)]
+
+    # Default: 133, 134, 135, 136, 137 (lowest 5 model levels, ~150m, ~100-120m, ~50-70m, ~10-15m, surface)
+    DEFAULT_MODEL_LEVELS = ["133", "134", "135", "136", "137"]
 
     # Mapping of variable names to MARS parameter short codes
     VARIABLE_TO_MARS_PARAM = {
@@ -309,8 +312,8 @@ class Era5Downloader:
             variables (list[str], optional): List of ERA5 variables. Defaults to common variables.
             area (list[float], optional): Bounding box [N, W, S, E]. Defaults to world (None).
             resolution (str, optional): Grid resolution. Defaults to "0.25/0.25".
-            pressure_levels (list[str], optional): Pressure levels (hPa). Defaults to standard levels if None.
-            model_levels (list[str], optional): Model levels (1-137). Defaults to standard levels if None.
+            pressure_levels (list[str], optional): Pressure levels (hPa). Defaults to default levels if None.
+            model_levels (list[str], optional): Model levels (1-137). Defaults to default levels if None.
             file_format (str, optional): Output file format ("grib" or "netcdf"). Defaults to "grib".
             resume (bool, optional): Whether to resume from a previous download. Defaults to False.
             dry_run (bool, optional): If True, print requests without submitting them. Defaults to False.
@@ -337,7 +340,7 @@ class Era5Downloader:
         # Determine which level types to download
         # If both are None, default to pressure levels
         if pressure_levels is None and model_levels is None:
-            self.pressure_levels = self.STANDARD_PRESSURE_LEVELS
+            self.pressure_levels = self.DEFAULT_PRESSURE_LEVELS
             self.model_levels = None
         else:
             # Use default levels if specified as empty but not None
@@ -345,11 +348,11 @@ class Era5Downloader:
                 pressure_levels if pressure_levels is not None else None
             )
             if self.pressure_levels is not None and len(self.pressure_levels) == 0:
-                self.pressure_levels = self.STANDARD_PRESSURE_LEVELS
+                self.pressure_levels = self.DEFAULT_PRESSURE_LEVELS
 
             self.model_levels = model_levels if model_levels is not None else None
             if self.model_levels is not None and len(self.model_levels) == 0:
-                self.model_levels = self.STANDARD_MODEL_LEVELS
+                self.model_levels = self.DEFAULT_MODEL_LEVELS
 
         self.output_path = Path(output_path)
         self.checkpoint_path = self.output_path / "status.pickle"
@@ -526,7 +529,7 @@ class Era5Downloader:
         """Download ERA5 variables for a specific year, month, and level type.
 
         Unified method for downloading single-level (2D), pressure-level (3D), and model-level (3D) variables.
-        Each variable is downloaded in a separate file using the MARS format via reanalysis-era5-complete dataset.
+        All variables of same year, month and level_type are combined into a single file.
 
         Args:
             year (int): Year to download data for.
@@ -626,6 +629,8 @@ class Era5Downloader:
                 logger.info(
                     f"{year}-{month} ({level_type}): DRY RUN - Request printed (not submitted)"
                 )
+                # Do not update checkpoint for dry runs
+                return 1
             else:
                 logger.info(
                     f"{year}-{month} ({level_type}, {len(variables_to_download)} variables): Starting download..."
@@ -754,7 +759,7 @@ class Era5Downloader:
         print(
             f"Available levels (hPa): {', '.join(Era5Downloader.ALL_PRESSURE_LEVELS)}"
         )
-        print(f"Default levels: {', '.join(Era5Downloader.STANDARD_PRESSURE_LEVELS)}")
+        print(f"Default levels: {', '.join(Era5Downloader.DEFAULT_PRESSURE_LEVELS)}")
         print(f"Total: {len(Era5Downloader.ALL_PRESSURE_LEVEL_VARIABLES)} variables\n")
         for var in sorted(Era5Downloader.ALL_PRESSURE_LEVEL_VARIABLES):
             marker = (
@@ -774,7 +779,7 @@ class Era5Downloader:
         print("\n--- MODEL-LEVEL (3D) VARIABLES ---")
         print("Dataset: reanalysis-era5-complete")
         print("Available levels: 1-137 (137 levels)")
-        print(f"Default levels: {', '.join(Era5Downloader.STANDARD_MODEL_LEVELS)}")
+        print(f"Default levels: {', '.join(Era5Downloader.DEFAULT_MODEL_LEVELS)}")
         print(f"Total: {len(Era5Downloader.ALL_MODEL_LEVEL_VARIABLES)} variables\n")
         for var in sorted(Era5Downloader.ALL_MODEL_LEVEL_VARIABLES):
             marker = (

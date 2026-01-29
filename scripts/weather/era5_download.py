@@ -105,6 +105,12 @@ def parse_arguments() -> argparse.Namespace:
         "Useful for debugging request parameters.",
     )
     parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume download from a previous checkpoint. "
+        "Skips already downloaded year/month/level_type combinations.",
+    )
+    parser.add_argument(
         "-o",
         "--cfg_options",
         action="append",
@@ -145,6 +151,7 @@ def main() -> None:
         pressure_levels=pressure_levels,
         model_levels=model_levels,
         file_format=args.file_format,
+        resume=args.resume,
         dry_run=args.dry_run,
     )
     downloader.download_data()
