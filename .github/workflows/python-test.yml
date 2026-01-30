@@ -43,11 +43,13 @@ jobs:
           coverage report -m --format markdown > cov_report.txt
           coverage xml
 
-      - name: Post coverage report to PR
+      - name: Save coverage report
         if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest'
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: actions/upload-artifact@v4
         with:
+          name: coverage-report
           path: cov_report.txt
+          retention-days: 1
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
