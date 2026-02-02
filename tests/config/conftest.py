@@ -17,6 +17,9 @@ def source_configs() -> dict:
             "paths": {"dst_dir_raw": "/path/raw/entsoe"},
             "access": {"api_key": "token"},
         },
+        "icon_dream_global": {
+            "paths": {"dst_dir_raw": "/path/raw/weather/icon_dream_global"},
+        },
     }
 
 

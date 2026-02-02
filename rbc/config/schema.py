@@ -81,9 +81,22 @@ class EntsoeConfig(AccessValidation, BaseModel):
     access: AccessAPI
 
 
+class IconDreamGlobalConfig(BaseModel):
+    """Configuration schema for the ICON-DREAM Global weather data source.
+
+    Attributes:
+        source (Literal): Name of the data source.
+        paths (Paths): Paths pydantic model for paths.
+    """
+
+    source: Literal["icon_dream_global"] = "icon_dream_global"
+    paths: Paths
+
+
 # ----------------------------------
 # Schema registry
 # ----------------------------------
 SCHEMA_REGISTRY: dict[str, Type[BaseModel]] = {
     "entsoe": EntsoeConfig,
+    "icon_dream_global": IconDreamGlobalConfig,
 }

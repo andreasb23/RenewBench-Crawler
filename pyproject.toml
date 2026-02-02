@@ -43,6 +43,7 @@ dev = [
     "pytest-cov",
     "pytest-mpi",
     "ruff",
+    "types-requests",
 ]
 
 [tool.ruff]
