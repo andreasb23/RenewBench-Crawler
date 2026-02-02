@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""ERA5 NWP DATA DOWNLOAD SCRIPT.
+"""ERA5 REANALYSIS DATA DOWNLOAD SCRIPT.
 
 Download ERA5 reanalysis data from Copernicus Climate Data Store.
 """
@@ -21,7 +21,7 @@ def parse_arguments() -> argparse.Namespace:
     Returns:
         argparse.Namespace: Namespace parsed command line arguments.
     """
-    parser = ArgumentParser(prog="ERA5 NWP data download")
+    parser = ArgumentParser(prog="ERA5 reanalysis data download")
 
     parser.add_argument(
         "--list-variables",

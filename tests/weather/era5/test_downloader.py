@@ -1,5 +1,5 @@
 # tests/weather/era5/test_downloader.py
-"""Tests for ERA5 NWP data downloader."""
+"""Tests for ERA5 reanalysis data downloader."""
 
 import pickle
 from pathlib import Path
@@ -9,7 +9,6 @@ import numpy as np
 import pytest
 
 from rbc.weather.era5 import Era5Downloader
-from rbc.weather.utils import get_days_in_month
 
 
 # ----------------------------------
@@ -404,22 +403,6 @@ def test_download_data_dry_run(downloader: Era5Downloader) -> None:
 # ----------------------------------
 # Tests - Utility methods
 # ----------------------------------
-@pytest.mark.parametrize(
-    "year,month,expected_days",
-    [(2020, "01", 31), (2020, "02", 29), (2019, "02", 28), (2020, "04", 30)],
-)
-def test_get_days_in_month(year: int, month: str, expected_days: int) -> None:
-    """Test calculation of days in month.
-
-    Args:
-        year (int): Year.
-        month (str): Month.
-        expected_days (int): Expected number of days.
-    """
-    days = get_days_in_month(year, month)
-    assert days == expected_days
-
-
 def test_print_available_variables(capsys) -> None:
     """Test printing of available variables.
 

@@ -1,20 +1,28 @@
-"""ERA5 NWP DATA DOWNLOADER.
+"""ERA5 REANALYSIS DATA DOWNLOADER.
 
 Remote API access of ERA5 reanalysis data using the cdsapi package.
 """
 
 import pickle
+from calendar import monthrange
 from pathlib import Path
 
 import cdsapi  # type: ignore[import-untyped]
 import numpy as np
 from loguru import logger
 
-from rbc.weather.utils import get_days_in_month
+# MARS request constants
+MARS_CLASS = "ea"
+MARS_STREAM = "oper"
+MARS_TYPE = "an"
+MARS_EXPVER = "1"
+LEVTYPE_SINGLE = "sfc"
+LEVTYPE_PRESSURE = "pl"
+LEVTYPE_MODEL = "ml"
 
 
 class Era5Downloader:
-    """ERA5 NWP data downloader.
+    """ERA5 reanalysis data downloader.
 
     Attributes:
         years (list[int]): List of years to get data for.
@@ -32,22 +40,6 @@ class Era5Downloader:
         file_extension (str): File extension based on file_format.
         resolution (str): Grid resolution (e.g., "0.25/0.25").
     """
-
-    # Type annotations for instance attributes
-    years: list[int]
-    months: list[str]
-    variables: list[str]
-    area: list[float] | None
-    pressure_levels: list[str] | None
-    model_levels: list[str] | None
-    output_path: Path
-    checkpoint_path: Path
-    checkpoint: np.ndarray
-    client: cdsapi.Client
-    dry_run: bool
-    file_format: str
-    file_extension: str
-    resolution: str
 
     # 2D single-level variables (no vertical levels needed)
     # All available single-level ERA5 variables
@@ -331,7 +323,7 @@ class Era5Downloader:
             months if months is not None else [f"{i:02d}" for i in range(1, 13)]
         )
         self.variables = variables if variables is not None else self.DEFAULT_VARIABLES
-        self.area = area  # None means world (all)
+        self.area = area  # If None, API downloads global data (area parameter omitted from request)
         self.resolution = resolution
         self.file_format = file_format.lower()
         self.file_extension = "nc" if self.file_format == "netcdf" else "grib"
@@ -340,17 +332,15 @@ class Era5Downloader:
         # Determine which level types to download
         # If both are None, default to pressure levels
         if pressure_levels is None and model_levels is None:
-            self.pressure_levels = self.DEFAULT_PRESSURE_LEVELS
-            self.model_levels = None
+            self.pressure_levels: list[str] | None = self.DEFAULT_PRESSURE_LEVELS
+            self.model_levels: list[str] | None = None
         else:
             # Use default levels if specified as empty but not None
-            self.pressure_levels = (
-                pressure_levels if pressure_levels is not None else None
-            )
+            self.pressure_levels = pressure_levels
             if self.pressure_levels is not None and len(self.pressure_levels) == 0:
                 self.pressure_levels = self.DEFAULT_PRESSURE_LEVELS
 
-            self.model_levels = model_levels if model_levels is not None else None
+            self.model_levels = model_levels
             if self.model_levels is not None and len(self.model_levels) == 0:
                 self.model_levels = self.DEFAULT_MODEL_LEVELS
 
@@ -692,7 +682,7 @@ class Era5Downloader:
         Returns:
             dict: MARS format request parameters with combined param codes
         """
-        days_in_month = get_days_in_month(year, month)
+        days_in_month = monthrange(year, int(month))[1]
         date_range = f"{year}-{month}-01/to/{year}-{month}-{days_in_month:02d}"
 
         # Format times as HH:MM:SS separated by slashes
@@ -711,14 +701,14 @@ class Era5Downloader:
 
         # Build base request
         request = {
-            "class": "ea",
+            "class": MARS_CLASS,
             "date": date_range,
-            "expver": "1",
+            "expver": MARS_EXPVER,
             "grid": self.resolution,
             "param": combined_params,
-            "stream": "oper",
+            "stream": MARS_STREAM,
             "time": times,
-            "type": "an",
+            "type": MARS_TYPE,
         }
 
         # Add area if specified
@@ -728,13 +718,13 @@ class Era5Downloader:
         # Add level-specific parameters
         if level_type == "single":
             # Single-level (surface) variables
-            request["levtype"] = "sfc"
+            request["levtype"] = LEVTYPE_SINGLE
         elif level_type == "pressure":
-            request["levtype"] = "pl"
+            request["levtype"] = LEVTYPE_PRESSURE
             if self.pressure_levels is not None:
                 request["levelist"] = "/".join(self.pressure_levels)
         elif level_type == "model":
-            request["levtype"] = "ml"
+            request["levtype"] = LEVTYPE_MODEL
             if self.model_levels is not None:
                 request["levelist"] = "/".join(self.model_levels)
 

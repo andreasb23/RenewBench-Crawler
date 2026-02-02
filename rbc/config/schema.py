@@ -94,7 +94,7 @@ class AccessCDS(BaseModel):
 
 
 class Era5Config(AccessValidation, BaseModel):
-    """Configuration schema for the ERA5 NWP data source.
+    """Configuration schema for the ERA5 reanalysis data source.
 
     Attributes:
         source (Literal): Name of the data source.
