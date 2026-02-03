@@ -37,18 +37,6 @@ class IconDreamGlobalDownloader:
         "https://opendata.dwd.de/climate_environment/REA/ICON-DREAM-Global/hourly"
     )
 
-    # Type annotations
-    years: list[int]
-    months: list[str]
-    variables: list[str]
-    output_path: Path
-    checkpoint_path: Path
-    checkpoint: np.ndarray
-    dry_run: bool
-    resume: bool
-    available_variables: set[str]
-    available_dates: dict
-
     def __init__(
         self,
         output_path: Path,
