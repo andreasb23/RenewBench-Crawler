@@ -11,6 +11,21 @@ import cdsapi  # type: ignore[import-untyped]
 import numpy as np
 from loguru import logger
 
+from rbc.weather.era5.mappings import (
+    ALL_MODEL_LEVEL_VARIABLES,
+    ALL_MODEL_LEVELS,
+    ALL_PRESSURE_LEVEL_VARIABLES,
+    ALL_PRESSURE_LEVELS,
+    ALL_SINGLE_LEVEL_VARIABLES,
+    DEFAULT_MODEL_LEVELS,
+    DEFAULT_PRESSURE_LEVELS,
+    DEFAULT_VARIABLES,
+    VARIABLE_TO_MARS_PARAM,
+)
+
+# CDS API base URL
+URL = "https://cds.climate.copernicus.eu/api"
+
 # MARS request constants
 MARS_CLASS = "ea"
 MARS_STREAM = "oper"
@@ -41,245 +56,8 @@ class Era5Downloader:
         resolution (str): Grid resolution (e.g., "0.25/0.25").
     """
 
-    # 2D single-level variables (no vertical levels needed)
-    # All available single-level ERA5 variables
-    ALL_SINGLE_LEVEL_VARIABLES = {
-        "10m_u_component_of_wind",
-        "10m_v_component_of_wind",
-        "100m_u_component_of_wind",
-        "100m_v_component_of_wind",
-        "2m_dewpoint_temperature",
-        "2m_temperature",
-        "boundary_layer_height",
-        "convective_available_potential_energy",
-        "convective_precipitation",
-        "eastward_turbulent_surface_stress",
-        "evaporation",
-        "friction_velocity",
-        "geopotential_at_surface",
-        "high_vegetation_cover",
-        "instantaneous_10m_wind_direction",
-        "instantaneous_10m_wind_speed",
-        "instantaneous_eastward_turbulent_surface_stress",
-        "instantaneous_northward_turbulent_surface_stress",
-        "land_sea_mask",
-        "large_scale_precipitation",
-        "leaf_area_index_high_vegetation",
-        "leaf_area_index_low_vegetation",
-        "low_vegetation_cover",
-        "mean_sea_level_pressure",
-        "mean_surface_downward_long_wave_radiation_flux",
-        "mean_surface_downward_short_wave_radiation_flux",
-        "mean_surface_latent_heat_flux",
-        "mean_surface_sensible_heat_flux",
-        "mean_top_downward_long_wave_radiation_flux",
-        "mean_top_downward_short_wave_radiation_flux",
-        "mean_top_net_long_wave_radiation_flux",
-        "mean_top_net_short_wave_radiation_flux",
-        "northward_turbulent_surface_stress",
-        "potential_evaporation",
-        "runoff",
-        "sea_ice_cover",
-        "sea_surface_temperature",
-        "skin_reservoir_content",
-        "skin_temperature",
-        "snow_cover",
-        "snow_depth",
-        "snowfall",
-        "soil_temperature_level_1",
-        "soil_temperature_level_2",
-        "soil_temperature_level_3",
-        "soil_temperature_level_4",
-        "soil_type",
-        "surface_latent_heat_flux",
-        "surface_net_solar_radiation",
-        "surface_net_thermal_radiation",
-        "surface_pressure",
-        "surface_sensible_heat_flux",
-        "surface_solar_radiation_downwards",
-        "surface_thermal_radiation_downwards",
-        "top_net_solar_radiation",
-        "top_net_thermal_radiation",
-        "total_cloud_cover",
-        "total_column_cloud_liquid_water",
-        "total_column_cloud_ice_water",
-        "total_column_ozone",
-        "total_column_rain_water",
-        "total_column_supercooled_liquid_water",
-        "total_column_water",
-        "total_column_water_vapour",
-        "total_precipitation",
-        "type_of_high_vegetation",
-        "type_of_low_vegetation",
-        "uv_visible_albedo_for_direct_radiation",
-        "uv_visible_albedo_for_diffuse_radiation",
-        "vertical_integral_of_divergence_of_moisture_flux",
-        "vertical_integral_of_eastward_water_vapour_flux",
-        "vertical_integral_of_northward_water_vapour_flux",
-        "volumetric_soil_water_layer_1",
-        "volumetric_soil_water_layer_2",
-        "volumetric_soil_water_layer_3",
-        "volumetric_soil_water_layer_4",
-    }
-
-    # All available 3D pressure-level ERA5 variables
-    ALL_PRESSURE_LEVEL_VARIABLES = {
-        "divergence",
-        "fraction_of_cloud_cover",
-        "geopotential",
-        "ozone_mass_mixing_ratio",
-        "potential_vorticity",
-        "quality_indicators_cloud_icing_level",
-        "quality_indicators_cloud_type",
-        "relative_humidity",
-        "specific_cloud_ice_water_content",
-        "specific_cloud_liquid_water_content",
-        "specific_humidity",
-        "temperature",
-        "u_component_of_wind",
-        "v_component_of_wind",
-        "vorticity",
-    }
-
-    # All available 3D model-level ERA5 variables
-    ALL_MODEL_LEVEL_VARIABLES = {
-        "divergence",
-        "fraction_of_cloud_cover",
-        "geopotential",
-        "ozone_mass_mixing_ratio",
-        "potential_vorticity",
-        "quality_indicators_cloud_icing_level",
-        "quality_indicators_cloud_type",
-        "relative_humidity",
-        "specific_cloud_ice_water_content",
-        "specific_cloud_liquid_water_content",
-        "specific_humidity",
-        "temperature",
-        "u_component_of_wind",
-        "v_component_of_wind",
-        "vorticity",
-    }
-
-    # Default: 13 variables (8 single-level surface + 5 pressure-level atmospheric)
-    DEFAULT_VARIABLES = [
-        # 2D surface variables
-        "10m_u_component_of_wind",
-        "10m_v_component_of_wind",
-        "100m_u_component_of_wind",
-        "100m_v_component_of_wind",
-        "2m_temperature",
-        "surface_solar_radiation_downwards",
-        "surface_pressure",
-        "total_precipitation",
-        # 3D variables at pressure levels
-        "temperature",
-        "u_component_of_wind",
-        "v_component_of_wind",
-        "relative_humidity",
-        "geopotential",
-    ]
-
-    # All available pressure levels in ERA5
-    ALL_PRESSURE_LEVELS = [
-        "1",
-        "2",
-        "3",
-        "5",
-        "7",
-        "10",
-        "20",
-        "30",
-        "50",
-        "70",
-        "100",
-        "125",
-        "150",
-        "175",
-        "200",
-        "225",
-        "250",
-        "300",
-        "350",
-        "400",
-        "450",
-        "500",
-        "550",
-        "600",
-        "650",
-        "700",
-        "750",
-        "775",
-        "800",
-        "825",
-        "850",
-        "875",
-        "900",
-        "925",
-        "950",
-        "975",
-        "1000",
-    ]
-
-    # Default: 1000, 975, 950 hPa (lowest 3 pressure levels, ~110m, ~300m, ~560m altitude)
-    DEFAULT_PRESSURE_LEVELS = ["1000", "975", "950"]
-
-    # All available model levels in ERA5 (1-137, where 137 is the surface)
-    ALL_MODEL_LEVELS = [str(i) for i in range(1, 138)]
-
-    # Default: 133, 134, 135, 136, 137 (lowest 5 model levels, ~150m, ~100-120m, ~50-70m, ~10-15m, surface)
-    DEFAULT_MODEL_LEVELS = ["133", "134", "135", "136", "137"]
-
-    # Mapping of variable names to MARS parameter short codes
-    VARIABLE_TO_MARS_PARAM = {
-        # Single-level variables
-        "10m_u_component_of_wind": "10u",
-        "10m_v_component_of_wind": "10v",
-        "100m_u_component_of_wind": "100u",
-        "100m_v_component_of_wind": "100v",
-        "2m_temperature": "2t",
-        "2m_dewpoint_temperature": "2d",
-        "surface_solar_radiation_downwards": "ssrd",
-        "surface_pressure": "sp",
-        "total_precipitation": "tp",
-        "mean_sea_level_pressure": "msl",
-        "boundary_layer_height": "blh",
-        "convective_precipitation": "cp",
-        "evaporation": "e",
-        "snowfall": "sf",
-        "snow_depth": "sd",
-        "sea_ice_cover": "ci",
-        "sea_surface_temperature": "sst",
-        "skin_temperature": "skt",
-        "skin_reservoir_content": "src",
-        "soil_type": "slt",
-        "surface_latent_heat_flux": "slhf",
-        "surface_sensible_heat_flux": "sshf",
-        "surface_thermal_radiation_downwards": "strd",
-        "surface_net_solar_radiation": "ssr",
-        "surface_net_thermal_radiation": "str",
-        "top_net_solar_radiation": "tsr",
-        "top_net_thermal_radiation": "ttr",
-        "total_cloud_cover": "tcc",
-        # 3D variables (pressure/model levels)
-        "temperature": "t",
-        "u_component_of_wind": "u",
-        "v_component_of_wind": "v",
-        "geopotential": "z",
-        "relative_humidity": "r",
-        "specific_humidity": "q",
-        "vertical_velocity": "w",
-        "divergence": "d",
-        "vorticity": "vo",
-        "potential_vorticity": "pv",
-        "fraction_of_cloud_cover": "cc",
-        "specific_cloud_ice_water_content": "ciwc",
-        "specific_cloud_liquid_water_content": "clwc",
-        "ozone_mass_mixing_ratio": "o3",
-    }
-
     def __init__(
         self,
-        api_url: str,
         api_key: str,
         output_path: Path,
         years: list[int],
@@ -296,7 +74,6 @@ class Era5Downloader:
         """Initializes the instance.
 
         Args:
-            api_url (str): The CDS API URL.
             api_key (str): The CDS API key.
             output_path (Path): Path to the output directory.
             years (list[int]): List of years to get data for.
@@ -322,7 +99,7 @@ class Era5Downloader:
         self.months = (
             months if months is not None else [f"{i:02d}" for i in range(1, 13)]
         )
-        self.variables = variables if variables is not None else self.DEFAULT_VARIABLES
+        self.variables = variables if variables is not None else DEFAULT_VARIABLES
         self.area = area  # If None, API downloads global data (area parameter omitted from request)
         self.resolution = resolution
         self.file_format = file_format.lower()
@@ -332,20 +109,20 @@ class Era5Downloader:
         # Determine which level types to download
         # If both are None, default to pressure levels
         if pressure_levels is None and model_levels is None:
-            self.pressure_levels: list[str] | None = self.DEFAULT_PRESSURE_LEVELS
+            self.pressure_levels: list[str] | None = DEFAULT_PRESSURE_LEVELS
             self.model_levels: list[str] | None = None
         else:
             # Use default levels if specified as empty but not None
             self.pressure_levels = pressure_levels
             if self.pressure_levels is not None and len(self.pressure_levels) == 0:
-                self.pressure_levels = self.DEFAULT_PRESSURE_LEVELS
+                self.pressure_levels = DEFAULT_PRESSURE_LEVELS
 
             self.model_levels = model_levels
             if self.model_levels is not None and len(self.model_levels) == 0:
-                self.model_levels = self.DEFAULT_MODEL_LEVELS
+                self.model_levels = DEFAULT_MODEL_LEVELS
 
         self.output_path = Path(output_path)
-        self.checkpoint_path = self.output_path / "status.pickle"
+        self.checkpoint_path = Path(self.output_path, "status.pickle")
 
         # Create output directory if it doesn't exist
         self.output_path.mkdir(parents=True, exist_ok=True)
@@ -371,7 +148,7 @@ class Era5Downloader:
 
         # Initialize CDS API client
         try:
-            self.client = cdsapi.Client(url=api_url, key=api_key)
+            self.client = cdsapi.Client(url=URL, key=api_key)
             logger.info("CDS API client initialized successfully.")
         except Exception as e:
             raise ValueError(f"Failed to initialize CDS API client: {e}")
@@ -412,7 +189,7 @@ class Era5Downloader:
         invalid_model_level: list[str] = []
 
         for variable in self.variables:
-            is_single_level = variable in self.ALL_SINGLE_LEVEL_VARIABLES
+            is_single_level = variable in ALL_SINGLE_LEVEL_VARIABLES
 
             if is_single_level:
                 # Single-level variable is valid (already checked membership above)
@@ -420,22 +197,22 @@ class Era5Downloader:
             else:
                 # Check if 3D variable is available
                 if (
-                    variable not in self.ALL_PRESSURE_LEVEL_VARIABLES
-                    and variable not in self.ALL_MODEL_LEVEL_VARIABLES
+                    variable not in ALL_PRESSURE_LEVEL_VARIABLES
+                    and variable not in ALL_MODEL_LEVEL_VARIABLES
                 ):
                     invalid_pressure_level.append(variable)
                 else:
                     # Check against specific level types if requested
                     if (
                         self.pressure_levels is not None
-                        and variable not in self.ALL_PRESSURE_LEVEL_VARIABLES
+                        and variable not in ALL_PRESSURE_LEVEL_VARIABLES
                     ):
                         invalid_pressure_level.append(
                             f"{variable} (not available at pressure levels)"
                         )
                     if (
                         self.model_levels is not None
-                        and variable not in self.ALL_MODEL_LEVEL_VARIABLES
+                        and variable not in ALL_MODEL_LEVEL_VARIABLES
                     ):
                         invalid_model_level.append(
                             f"{variable} (not available at model levels)"
@@ -533,17 +310,17 @@ class Era5Downloader:
         # Determine which variables to download based on level type
         if level_type == "single":
             variables_to_download = [
-                v for v in self.variables if v in self.ALL_SINGLE_LEVEL_VARIABLES
+                v for v in self.variables if v in ALL_SINGLE_LEVEL_VARIABLES
             ]
             level_prefix = "sl"
         elif level_type == "pressure":
             variables_to_download = [
-                v for v in self.variables if v in self.ALL_PRESSURE_LEVEL_VARIABLES
+                v for v in self.variables if v in ALL_PRESSURE_LEVEL_VARIABLES
             ]
             level_prefix = "pl"
         else:  # model
             variables_to_download = [
-                v for v in self.variables if v in self.ALL_MODEL_LEVEL_VARIABLES
+                v for v in self.variables if v in ALL_MODEL_LEVEL_VARIABLES
             ]
             level_prefix = "ml"
 
@@ -573,14 +350,14 @@ class Era5Downloader:
         if (
             level_type == "pressure"
             and self.pressure_levels is not None
-            and self.pressure_levels != self.ALL_PRESSURE_LEVELS
+            and self.pressure_levels != ALL_PRESSURE_LEVELS
         ):
             levels_str = "-".join(self.pressure_levels)
             level_suffix += f"_{levels_str}"
         elif (
             level_type == "model"
             and self.model_levels is not None
-            and self.model_levels != self.ALL_MODEL_LEVELS
+            and self.model_levels != ALL_MODEL_LEVELS
         ):
             levels_str = "-".join(self.model_levels)
             level_suffix += f"_{levels_str}"
@@ -660,8 +437,8 @@ class Era5Downloader:
         Returns:
             str: MARS parameter code
         """
-        if variable in self.VARIABLE_TO_MARS_PARAM:
-            return self.VARIABLE_TO_MARS_PARAM[variable]
+        if variable in VARIABLE_TO_MARS_PARAM:
+            return VARIABLE_TO_MARS_PARAM[variable]
         # Fallback: try to use variable name directly
         return variable.replace("_", "")[:10]
 
@@ -739,19 +516,17 @@ class Era5Downloader:
 
         print("\n--- SINGLE-LEVEL (2D) VARIABLES ---")
         print("Dataset: reanalysis-era5-single-levels")
-        print(f"Total: {len(Era5Downloader.ALL_SINGLE_LEVEL_VARIABLES)} variables\n")
-        for var in sorted(Era5Downloader.ALL_SINGLE_LEVEL_VARIABLES):
-            marker = " [DEFAULT]" if var in Era5Downloader.DEFAULT_VARIABLES else ""
+        print(f"Total: {len(ALL_SINGLE_LEVEL_VARIABLES)} variables\n")
+        for var in sorted(ALL_SINGLE_LEVEL_VARIABLES):
+            marker = " [DEFAULT]" if var in DEFAULT_VARIABLES else ""
             print(f"  • {var}{marker}")
 
         print("\n--- PRESSURE-LEVEL (3D) VARIABLES ---")
         print("Dataset: reanalysis-era5-pressure-levels")
-        print(
-            f"Available levels (hPa): {', '.join(Era5Downloader.ALL_PRESSURE_LEVELS)}"
-        )
-        print(f"Default levels: {', '.join(Era5Downloader.DEFAULT_PRESSURE_LEVELS)}")
-        print(f"Total: {len(Era5Downloader.ALL_PRESSURE_LEVEL_VARIABLES)} variables\n")
-        for var in sorted(Era5Downloader.ALL_PRESSURE_LEVEL_VARIABLES):
+        print(f"Available levels (hPa): {', '.join(ALL_PRESSURE_LEVELS)}")
+        print(f"Default levels: {', '.join(DEFAULT_PRESSURE_LEVELS)}")
+        print(f"Total: {len(ALL_PRESSURE_LEVEL_VARIABLES)} variables\n")
+        for var in sorted(ALL_PRESSURE_LEVEL_VARIABLES):
             marker = (
                 " [DEFAULT]"
                 if var
@@ -769,9 +544,9 @@ class Era5Downloader:
         print("\n--- MODEL-LEVEL (3D) VARIABLES ---")
         print("Dataset: reanalysis-era5-complete")
         print("Available levels: 1-137 (137 levels)")
-        print(f"Default levels: {', '.join(Era5Downloader.DEFAULT_MODEL_LEVELS)}")
-        print(f"Total: {len(Era5Downloader.ALL_MODEL_LEVEL_VARIABLES)} variables\n")
-        for var in sorted(Era5Downloader.ALL_MODEL_LEVEL_VARIABLES):
+        print(f"Default levels: {', '.join(DEFAULT_MODEL_LEVELS)}")
+        print(f"Total: {len(ALL_MODEL_LEVEL_VARIABLES)} variables\n")
+        for var in sorted(ALL_MODEL_LEVEL_VARIABLES):
             marker = (
                 " [DEFAULT]"
                 if var

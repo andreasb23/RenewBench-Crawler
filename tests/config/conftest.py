@@ -18,9 +18,8 @@ def source_configs() -> dict:
             "access": {"api_key": "token"},
         },
         "era5": {
-            "paths": {"dst_dir_raw": "/path/raw/era5"},
+            "paths": {"dst_dir_raw": "/path/raw/weather/era5"},
             "access": {
-                "api_url": "https://cds.climate.copernicus.eu/api",
                 "api_key": "token",
             },
         },

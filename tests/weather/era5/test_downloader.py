@@ -18,7 +18,6 @@ from rbc.weather.era5 import Era5Downloader
 def api_credentials() -> dict:
     """Fixture with fake API credentials."""
     return {
-        "api_url": "https://cds.climate.copernicus.eu/api",
         "api_key": "fake_api_key_12345",
     }
 

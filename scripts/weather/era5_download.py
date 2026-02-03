@@ -141,7 +141,6 @@ def main() -> None:
     model_levels = args.model_levels if args.model_levels is not None else None
 
     downloader = Era5Downloader(
-        api_url=cfg.access.api_url,
         api_key=cfg.access.api_key,
         output_path=cfg.paths.dst_dir_raw,
         years=args.years,
